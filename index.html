@@ -17,350 +17,529 @@
 <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* ==========================================================================
+   Charte commune des applis de Marc — v1 (1er novembre 2026)
+   À coller en haut du <style> de chaque index.html (pas de fichier externe :
+   chaque appli reste un seul index.html). Voir charte.md pour les règles.
+   Polices : copier design/fonts/ dans le dossier fonts/ de l'appli.
+   ========================================================================== */
+
 @font-face { font-family: 'Fredoka'; font-style: normal; font-weight: 300 700; font-display: swap; src: url('fonts/fredoka-latin.woff2') format('woff2'); }
 @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 200 1000; font-display: swap; src: url('fonts/nunito-latin.woff2') format('woff2'); }
 
-/* Couleurs de l'accueil « Mes applis » : pastel, contours prune, thème sombre automatique. */
+/* ---------- 1. Jetons (couleurs, formes, polices) ---------- */
 :root {
-  --bg: #FFF4FA;
-  --bg2: #EEF4FF;
-  --surface: #FFFFFF;
-  --ink: #3A2E5C;
-  --muted: #6E6290;
-  --line: #3A2E5C;
-  --track: #EADFF5;
-  --pink: #FF6FA5;
-  --accent: #6B4FD8;
-  --on-accent: #FFFFFF;
-  --sun: #FFD45C;
-  --on-sun: #3A2E5C;
-  --mint: #8EE3C8;
-  --good: #2BB07F;
-  --tint-good: #D9F7EA;
-  --tint-hint: #FFF1BF;
-  --tint-speak: #E6DEFF;
-  --display: 'Fredoka', 'Trebuchet MS', system-ui, sans-serif;
-  --body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  color-scheme: light;
+  color-scheme: light dark;
+
+  /* Fond et surfaces */
+  --bg: #FFF4FA;            /* haut du dégradé de fond (rose très pâle) */
+  --bg2: #EEF4FF;           /* bas du dégradé (bleu très pâle) */
+  --surface: #FFFFFF;       /* cartes, bulles, boutons doux */
+  --surface2: #F4F1FF;      /* touches du clavier, zones calmes */
+  --track: #E4DEF7;         /* fond des barres de progression */
+
+  /* Encre : même violet nuit que le contour des 30 personnages */
+  --ink: #2B2340;           /* texte */
+  --muted: #6B6190;         /* texte secondaire */
+  --line: #2B2340;          /* contours et ombres dures */
+
+  /* Rôles de couleur (un rôle = une couleur, dans toutes les applis) */
+  --action: #3B5BFF;        /* LE bouton principal (Commencer, Valider, Suivant) */
+  --on-action: #FFFFFF;
+  --pompon: #FF6FA5;        /* rose de Pompon : cœurs, « Nouveau », bouton ▶ de l'accueil */
+  --on-pompon: #FFFFFF;
+  --sun: #FFD45C;           /* étoiles, récompenses, astuces, focus clavier */
+  --on-sun: #2B2340;
+  --good: #2BC48A;          /* bonne réponse, OK */
+  --on-good: #0B2E20;
+  --tint-good: #D8F6E8;     /* carte réussie */
+  --retry: #FFB38A;         /* « à retenter » (jamais de rouge) */
+  --tint-retry: #FFE4D6;    /* carte à retenter */
+
+  /* 6 pastels (pastilles A-F, cartes de l'accueil, zones de carte) */
+  --p-rose: #FFD2E3;
+  --p-soleil: #FFE9A3;
+  --p-menthe: #C6F1E2;
+  --p-lilas: #E0D6FF;
+  --p-ciel: #CDEBFF;
+  --p-peche: #FFDCC8;
+
+  /* 6 couleurs vives (icônes, personnages, confettis) */
+  --v-rose: #FF6FA5;
+  --v-soleil: #FFD45C;
+  --v-menthe: #8EE3C8;
+  --v-lilas: #C9B6FF;
+  --v-ciel: #9AD7FF;
+  --v-peche: #FFB38A;
+
+  /* Lecture (applis de français) */
+  --syl-a: #2F4FE0;         /* syllabes alternées : bleu… */
+  --syl-b: #C92A62;         /* …et framboise */
+  --muette: #A39DB8;        /* lettre muette grisée */
+  --son-cle: #FFE9A3;       /* fond de la lettre qui décide du son */
+  --ligne-b: #EEF1FF;       /* une ligne sur deux */
+
+  /* Polices */
+  --display: 'Fredoka', 'Trebuchet MS', system-ui, sans-serif;  /* titres, boutons, chiffres */
+  --body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif; /* texte */
+  --lecture: 'Nunito', Arial, sans-serif;                        /* texte à lire */
+
+  /* Formes */
+  --bord: 3px;
+  --r-carte: 28px;
+  --r-btn: 22px;
+  --r-touche: 18px;
+  --r-pastille: 999px;
+  --ombre: 0 5px 0 var(--line);
+  --ombre-carte: 0 6px 0 var(--line);
+  --toucher: 56px;          /* hauteur mini d'un bouton */
+
+  /* Mouvement */
+  --ressort: cubic-bezier(.3, 1.6, .5, 1);
+  --deco: .55;              /* opacité des petits dessins de fond */
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #1E1933;
     --bg2: #171B36;
     --surface: #2B2448;
+    --surface2: #352D57;
+    --track: #3D3466;
     --ink: #FBEFFF;
     --muted: #C3B7E8;
-    --line: #120E22;
-    --track: #3A3160;
-    --pink: #FF8DB9;
-    --accent: #B4A2FF;
-    --on-accent: #1E1933;
-    --good: #5FE0AE;
-    --tint-good: #1D4A3E;
-    --tint-hint: #4F4320;
-    --tint-speak: #3E3470;
-    color-scheme: dark;
+    --line: #120E22;        /* le contour reste sombre, même la nuit */
+    --action: #7F98FF;
+    --on-action: #120E22;
+    --pompon: #FF8DB9;
+    --on-pompon: #2A0F1E;
+    --good: #3DDC97;
+    --tint-good: #1D4A3D;
+    --retry: #FF9F7A;
+    --tint-retry: #5A3326;
+    --p-rose: #5A3552;
+    --p-soleil: #5A4A24;
+    --p-menthe: #24504A;
+    --p-lilas: #433A72;
+    --p-ciel: #283F68;
+    --p-peche: #5A3A2E;
+    --syl-a: #9DB0FF;
+    --syl-b: #FF8DB4;
+    --muette: #7D7499;
+    --son-cle: #5A4A24;
+    --ligne-b: #262046;
+    --deco: .25;
   }
 }
 
-* { box-sizing: border-box; }
+/* ---------- 2. Base ---------- */
 [hidden] { display: none !important; }
-html { background: var(--bg); }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; background: var(--bg2); }
 body {
-  margin: 0; min-height: 100vh;
-  background: linear-gradient(180deg, var(--bg), var(--bg2)) fixed;
-  color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.45;
-  padding-top: calc(14px + env(safe-area-inset-top, 0px));
-  padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  margin: 0;
+  min-height: 100dvh;
+  background: linear-gradient(170deg, var(--bg) 0%, var(--bg2) 100%) no-repeat;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.45;
+  overflow-x: hidden;
 }
-.wrap { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
-button { font: inherit; color: inherit; touch-action: manipulation; }
+button, input, select { font: inherit; color: inherit; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.1; margin: 0; }
+h1 { font-size: clamp(1.6rem, 7vw, 2.4rem); }
+h2 { font-size: 1.4rem; }
+.wrap {
+  max-width: 560px; margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.home { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 3px solid var(--line); border-radius: 99px; background: var(--surface); box-shadow: 0 3px 0 var(--line); color: var(--ink); text-decoration: none; font-weight: 800; font-size: .95rem; }
-.home:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+/* ---------- 3. En-tête commun : 🏠 · titre · ⚙ ---------- */
+.entete { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.entete .titre { flex: 1; min-width: 0; font-family: var(--display); font-weight: 700; font-size: 1.25rem; text-align: center; }
+.rond {                    /* bouton rond (🏠, ⚙, ✕, son) */
+  flex: none; width: 48px; height: 48px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 22px; text-decoration: none; color: var(--ink);
+  background: var(--surface); border: var(--bord) solid var(--line); box-shadow: 0 4px 0 var(--line); cursor: pointer;
+}
+.rond:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
 
-.head { display: flex; align-items: center; gap: 14px; }
-.head h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2rem, 9vw, 2.7rem); line-height: 1.05; margin: 0; }
-.head p { margin: 6px 0 0; color: var(--muted); font-weight: 700; }
-.book { font-size: 3.4rem; line-height: 1; flex: none; }
-
-.panel { background: var(--surface); border: 3px solid var(--line); border-radius: 22px; box-shadow: 0 6px 0 var(--line); padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.panel h2 { font-family: var(--display); font-weight: 600; font-size: 1.25rem; margin: 0; }
-.hint { color: var(--muted); font-weight: 700; font-size: .92rem; margin: 0; }
-.center { text-align: center; }
-.stack { display: flex; flex-direction: column; gap: 16px; }
-
+/* ---------- 4. Boutons ---------- */
 .btn {
-  border: 3px solid var(--line); border-radius: 18px; padding: 12px 18px; min-height: 58px;
-  font-family: var(--display); font-weight: 600; font-size: 1.2rem; cursor: pointer;
-  box-shadow: 0 5px 0 var(--line); transition: transform .08s, box-shadow .08s;
-  background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: var(--toucher); padding: 10px 22px;
+  font: 600 1.2rem var(--display); text-decoration: none;
+  color: var(--ink); background: var(--surface);
+  border: var(--bord) solid var(--line); border-radius: var(--r-btn);
+  box-shadow: var(--ombre); cursor: pointer;
+  transition: transform .1s ease, box-shadow .1s ease;
 }
-.btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--line); }
-.btn:disabled { opacity: .5; cursor: default; }
-.btn.primary { background: var(--accent); color: var(--on-accent); }
-.btn.sun { background: var(--sun); color: var(--on-sun); }
-.btn.pink { background: var(--pink); color: #2A0F1E; }
-.btn.big { width: 100%; }
-.btn small { display: block; font-family: var(--body); font-weight: 800; font-size: .85rem; opacity: .85; }
-.link { background: none; border: 0; padding: 6px 2px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--muted); }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--line); }
+.btn:disabled { opacity: .45; cursor: default; transform: none; box-shadow: var(--ombre); }
+.btn-action { background: var(--action); color: var(--on-action); }   /* un seul par écran */
+.btn-soleil { background: var(--sun); color: var(--on-sun); }         /* bonus, installer */
+.btn-ok { background: var(--good); color: var(--on-good); }
+.btn-petit { width: auto; min-height: 44px; padding: 6px 16px; font-size: 1rem; border-radius: var(--r-pastille); box-shadow: 0 4px 0 var(--line); }
 
-/* Semaine */
-.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.day { display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 800; font-size: .8rem; color: var(--muted); }
-.day i { width: 100%; max-width: 40px; aspect-ratio: 1; border-radius: 50%; border: 3px solid var(--line); background: var(--bg); display: grid; place-items: center; font-style: normal; font-size: 1.1rem; }
-.day.on i { background: var(--sun); }
-.day.today b { color: var(--ink); }
-
-/* Liste des histoires */
-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-.story {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; text-align: left; cursor: pointer;
-  background: var(--bg); border: 3px solid var(--line); border-radius: 18px; box-shadow: 0 4px 0 var(--line);
+/* ---------- 5. Cartes, bulles, pastilles ---------- */
+.carte {
+  background: var(--surface); border: var(--bord) solid var(--line);
+  border-radius: var(--r-carte); box-shadow: var(--ombre-carte); padding: 20px;
 }
-.story:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
-.story .e { font-size: 2rem; line-height: 1; }
-.story .t { font-family: var(--display); font-weight: 600; font-size: 1.05rem; line-height: 1.2; }
-.story .s { font-size: 1rem; letter-spacing: 1px; color: var(--muted); }
-.story .s .on { color: #E9A400; }
-.story.next { background: var(--tint-speak); }
+.carte.reussie { background: var(--tint-good); }
+.carte.a-retenter { background: var(--tint-retry); }
+.bulle {                   /* bulle de dialogue d'un personnage */
+  position: relative; background: var(--surface); border: var(--bord) solid var(--line);
+  border-radius: 26px; box-shadow: var(--ombre); padding: 12px 16px;
+}
+.pastille {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 2px 12px;
+  border: 2px solid var(--line); border-radius: var(--r-pastille);
+  background: var(--surface); font: 700 .9rem var(--body); white-space: nowrap;
+}
+.pastille.soleil { background: var(--p-soleil); }
+.pastille.rose { background: var(--p-rose); }
+.pastille.menthe { background: var(--p-menthe); }
+.badge-nouveau {
+  display: inline-block; background: var(--sun); color: var(--on-sun);
+  border: var(--bord) solid var(--line); border-radius: var(--r-pastille);
+  padding: 1px 10px 2px; font: 700 .85rem var(--display); transform: rotate(4deg);
+}
+.etiquette { font: 800 .75rem var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.astuce {
+  background: var(--sun); color: var(--on-sun); border-radius: 18px;
+  padding: 10px 14px; font-weight: 700;
+}
+.astuce::before { content: '💡 '; }
 
-.switches { display: flex; flex-direction: column; gap: 12px; }
-.switch { display: flex; align-items: center; gap: 12px; font-weight: 700; cursor: pointer; }
-.switch input { width: 26px; height: 26px; accent-color: var(--accent); flex: none; margin: 0; }
-.foot { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 20px; }
+/* ---------- 6. Progression ---------- */
+.barre { height: 18px; border: var(--bord) solid var(--line); border-radius: var(--r-pastille); background: var(--track); overflow: hidden; }
+.barre > i { display: block; height: 100%; width: 0; background: var(--good); border-radius: inherit; transition: width .4s var(--ressort); }
 
-/* Séance */
-.playbar { display: flex; align-items: center; gap: 12px; }
-.playbar .link { color: var(--ink); flex: none; }
-.meter { flex: 1; height: 16px; background: var(--track); border: 3px solid var(--line); border-radius: 99px; overflow: hidden; }
-.meter i { display: block; height: 100%; width: 0; background: var(--good); transition: width .3s; }
-.count { font-weight: 800; flex: none; font-variant-numeric: tabular-nums; }
-.title { font-family: var(--display); font-weight: 600; font-size: 1.3rem; margin: 0; display: flex; gap: 8px; align-items: center; }
+/* ---------- 7. Choix A-F (QCM) et clavier ---------- */
+.choix {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--toucher);
+  padding: 8px 14px; text-align: left; font: 600 1.1rem var(--display);
+  background: var(--surface); border: var(--bord) solid var(--line);
+  border-radius: var(--r-touche); box-shadow: 0 4px 0 var(--line); cursor: pointer;
+}
+.choix:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
+.choix .lettre {
+  flex: none; width: 30px; height: 30px; display: grid; place-items: center;
+  border: 2px solid var(--line); border-radius: 10px; font-size: .9rem; background: var(--p-lilas);
+}
+.choix:nth-child(6n+1) .lettre { background: var(--p-rose); }
+.choix:nth-child(6n+2) .lettre { background: var(--p-soleil); }
+.choix:nth-child(6n+3) .lettre { background: var(--p-menthe); }
+.choix:nth-child(6n+4) .lettre { background: var(--p-lilas); }
+.choix:nth-child(6n+5) .lettre { background: var(--p-peche); }
+.choix:nth-child(6n+6) .lettre { background: var(--p-ciel); }
+.choix.bon { background: var(--tint-good); }
+.choix.a-revoir { background: var(--tint-retry); }
+.touche {
+  min-height: 64px; font: 600 1.8rem var(--display);
+  background: var(--surface); border: var(--bord) solid var(--line);
+  border-radius: var(--r-touche); box-shadow: 0 4px 0 var(--line); cursor: pointer;
+}
+.touche:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
+.touche.douce { background: var(--surface2); }
+.touche.ok { background: var(--good); color: var(--on-good); }
 
-/* Texte : grande police, interligne large, phrases qu'on peut toucher */
-.text { font-size: clamp(1.2rem, 5.6vw, 1.45rem); line-height: 1.75; letter-spacing: .02em; word-spacing: .12em; font-weight: 600; margin: 0; }
-.text p { margin: 0 0 .6em; padding: 4px 6px; border-radius: 12px; }
-.text p:last-child { margin-bottom: 0; }
-.text p.zone { background: var(--tint-hint); box-shadow: 0 0 0 3px var(--sun); }
-.ph { border-radius: 8px; padding: 1px 2px; cursor: pointer; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background .2s; }
-.ph.speak { background: var(--tint-speak); }
-.picking .ph { text-decoration: underline dotted var(--muted); text-decoration-thickness: 2px; text-underline-offset: 6px; }
-@media (hover: hover) { .picking .ph:hover { background: var(--tint-speak); } }
-.ph.found { background: var(--tint-good); box-shadow: 0 0 0 3px var(--good); text-decoration: none; }
-.ph.glow { background: var(--tint-hint); box-shadow: 0 0 0 3px var(--sun); }
-.ph.nope { animation: nope .45s ease-in-out; }
-@keyframes nope { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-.ph { display: inline; position: relative; }
+/* ---------- 8. Réglages : interrupteur ---------- */
+.interrupteur { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: var(--toucher); font-weight: 700; cursor: pointer; }
+.interrupteur input { appearance: none; flex: none; width: 58px; height: 34px; margin: 0; border: var(--bord) solid var(--line); border-radius: var(--r-pastille); background: var(--track); position: relative; cursor: pointer; transition: background .2s; }
+.interrupteur input::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); border: 2px solid var(--line); transition: transform .2s var(--ressort); }
+.interrupteur input:checked { background: var(--good); }
+.interrupteur input:checked::after { transform: translateX(24px); }
 
-.actions { display: flex; gap: 12px; }
-.actions .btn { flex: 1; }
-.listen { flex: 0 0 auto !important; min-width: 64px; font-size: 1.5rem; }
-.listen.on { background: var(--tint-speak); }
-.dots { display: flex; gap: 8px; justify-content: center; }
-.dots i { width: 12px; height: 12px; border-radius: 50%; background: var(--track); border: 2px solid var(--line); }
-.dots i.on { background: var(--accent); }
+/* ---------- 9. Texte à lire (applis de français) ---------- */
+.texte-lecture {
+  font-family: var(--lecture); font-size: 22px; font-weight: 600; line-height: 2;
+  letter-spacing: .02em; word-spacing: .12em; max-width: 34ch;
+}
+.texte-lecture .ligne { display: block; padding: 0 10px; border-radius: 10px; }
+.texte-lecture .ligne:nth-child(even) { background: var(--ligne-b); }
+.syl-a { color: var(--syl-a); }
+.syl-b { color: var(--syl-b); }
+.muette { color: var(--muette); }
+.son-cle { background: var(--son-cle); border-radius: 6px; box-shadow: 0 0 0 2px var(--son-cle); }
+
+/* ---------- 10. Animations (désactivables) ---------- */
+@keyframes apparait { from { transform: scale(.85); opacity: 0; } }
+@keyframes bravo { 0% { transform: scale(1); } 30% { transform: scale(1.08) rotate(-2deg); } 55% { transform: scale(.97) rotate(1deg); } 80% { transform: scale(1.02); } 100% { transform: scale(1); } }
+@keyframes non { 0%, 100% { transform: translateX(0) rotate(0); } 20% { transform: translateX(-10px) rotate(-3deg); } 40% { transform: translateX(9px) rotate(2.5deg); } 60% { transform: translateX(-6px) rotate(-1.5deg); } 80% { transform: translateX(3px) rotate(.5deg); } }
+@keyframes saute { 0%, 60%, 100% { transform: translateY(0) scale(1, 1); } 70% { transform: translateY(0) scale(1.06, .94); } 82% { transform: translateY(-10px) scale(.97, 1.03); } }
+@keyframes flotte { 50% { transform: translateY(-12px) rotate(12deg); } }
+@keyframes etoile { 0% { transform: translate(0, 0) scale(.3); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(var(--dx, 0), var(--dy, -80px)) scale(1) rotate(160deg); opacity: 0; } }
+@keyframes arrive { 0% { transform: translateY(40px) scale(.6); opacity: 0; } 60% { transform: translateY(-8px) scale(1.05); opacity: 1; } 100% { transform: none; } }
+
+.anim-apparait { animation: apparait .45s var(--ressort) both; }
+.anim-bravo { animation: bravo .6s ease both; }          /* bonne réponse : la carte rebondit */
+.anim-non { animation: non .5s ease both; }              /* erreur : la carte secoue la tête */
+.anim-saute { animation: saute 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.anim-arrive { animation: arrive .7s var(--ressort) both; } /* entrée d'un personnage */
+
+/* Petits dessins de fond ★ ♥ ✿ ✦ */
+.deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: var(--deco); }
+.deco span { position: absolute; font-size: 22px; animation: flotte 7s ease-in-out infinite; }
+
+/* Interrupteur « Animations » de l'appli : <html class="calme"> */
+.calme *, .calme *::before, .calme *::after { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ==========================================================================
+   Petites histoires : ce qui est propre à l'appli (la charte est au-dessus)
+   ========================================================================== */
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.wrap { position: relative; z-index: 1; }
+.hint { color: var(--muted); font-weight: 700; font-size: .92rem; margin: 0; }
+.carte h2 { font-size: 1.2rem; margin-bottom: 12px; }
+.carte > .hint:last-child { margin-top: 10px; }
+.link { background: none; border: 0; padding: 8px 2px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--muted); }
+.centre { display: flex; justify-content: center; }
+
+/* Accueil */
+.salut { display: flex; align-items: center; gap: 10px; }
+.salut svg { width: 96px; height: 96px; flex: none; overflow: visible; }
+.salut .bulle { flex: 1; font-weight: 700; }
+.salut .bulle b { font-family: var(--display); font-size: 1.15rem; display: block; }
+.btn small { display: block; font: 700 .85rem var(--body); opacity: .9; }
+.btn-action { flex-direction: column; gap: 0; }
+
+.semaine { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.jour { display: flex; flex-direction: column; align-items: center; gap: 4px; font: 700 .8rem var(--display); color: var(--muted); }
+.jour i { width: 100%; max-width: 40px; aspect-ratio: 1; border-radius: 50%; border: var(--bord) solid var(--line); background: var(--surface2); display: grid; place-items: center; font-style: normal; font-size: 1.1rem; color: var(--on-sun); }
+.jour.fait i { background: var(--sun); }
+.jour.auj { color: var(--ink); }
+
+.etagere { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.histoire {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; text-align: left; cursor: pointer; color: var(--ink);
+  border: var(--bord) solid var(--line); border-radius: var(--r-touche); box-shadow: 0 4px 0 var(--line); background: var(--p-lilas);
+}
+.histoire:nth-child(6n+1) { background: var(--p-rose); }
+.histoire:nth-child(6n+2) { background: var(--p-soleil); }
+.histoire:nth-child(6n+3) { background: var(--p-menthe); }
+.histoire:nth-child(6n+4) { background: var(--p-lilas); }
+.histoire:nth-child(6n+5) { background: var(--p-peche); }
+.histoire:nth-child(6n+6) { background: var(--p-ciel); }
+.histoire:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
+.histoire .e { font-size: 1.9rem; line-height: 1; }
+.histoire .t { font: 600 1.05rem/1.2 var(--display); }
+.histoire .s { font-size: 1rem; letter-spacing: 1px; color: var(--muted); }
+.histoire .s .on { color: var(--ink); }
+.histoire.suivante { outline: 4px dashed var(--line); outline-offset: 3px; }
+
+/* Barre de séance */
+.entete .barre { flex: 1; }
+.compte { font: 700 1rem var(--display); flex: none; font-variant-numeric: tabular-nums; }
+
+/* Texte à lire : une ligne sur deux teintée, alignée sur l'interligne double. */
+.texte-lecture { max-width: none; margin: 0; }
+.texte-lecture p {
+  margin: 0 0 2em; padding: 0 10px; border-radius: 10px;
+  background: repeating-linear-gradient(transparent 0 2em, var(--ligne-b) 2em 4em);
+}
+.texte-lecture p:last-child { margin-bottom: 0; }
+.texte-lecture p.zone { box-shadow: 0 0 0 4px var(--sun); background-color: var(--p-soleil); background-image: none; }
+.ph { border-radius: 8px; cursor: pointer; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background .2s; }
+.ph.lue { background: var(--p-lilas); box-shadow: 0 0 0 2px var(--p-lilas); }
+.cherche .ph { text-decoration: underline dotted var(--muted); text-decoration-thickness: 2px; text-underline-offset: 7px; }
+@media (hover: hover) { .cherche .ph:hover { background: var(--p-lilas); } }
+.ph.trouvee { background: var(--tint-good); box-shadow: 0 0 0 3px var(--good); text-decoration: none; }
+.ph.brille { background: var(--p-soleil); box-shadow: 0 0 0 3px var(--sun); }
+.ph.pas-ici { background: var(--tint-retry); }
+.points { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+.points i { width: 12px; height: 12px; border-radius: 50%; background: var(--track); border: 2px solid var(--line); }
+.points i.on { background: var(--action); }
+
+.rangee { display: flex; gap: 12px; align-items: center; }
+.rangee .btn { flex: 1; }
+.rond.lit { background: var(--p-lilas); }
+.rond:disabled { opacity: .4; cursor: default; }
 
 /* Question */
-.scene { position: relative; }
-.qcard { background: var(--surface); border: 3px solid var(--line); border-radius: 24px; box-shadow: 0 6px 0 var(--line); padding: 16px; display: flex; gap: 12px; align-items: flex-start; }
-.qcard .tag { display: block; font-weight: 800; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.qcard .q { font-family: var(--display); font-weight: 600; font-size: clamp(1.35rem, 6vw, 1.7rem); line-height: 1.25; margin: 4px 0 0; }
-.qcard > div { flex: 1; }
-.qcard .listen { min-height: 52px; min-width: 52px; padding: 6px; font-size: 1.3rem; }
-.choices { display: flex; flex-direction: column; gap: 12px; }
-.choice { width: 100%; justify-content: flex-start; text-align: left; font-family: var(--body); font-weight: 800; font-size: 1.15rem; line-height: 1.3; min-height: 60px; }
-.choice.right { background: var(--tint-good); }
-.choice.wrong { opacity: .4; box-shadow: 0 2px 0 var(--line); transform: translateY(3px); }
-.feedback { min-height: 1.5em; text-align: center; font-weight: 800; font-size: 1.1rem; margin: 0; }
-.feedback.ok { color: var(--good); }
-.prompt { background: var(--tint-hint); border: 3px solid var(--line); border-radius: 18px; padding: 10px 14px; font-weight: 800; margin: 0; display: flex; gap: 10px; align-items: center; }
+.question { display: flex; gap: 12px; align-items: flex-start; }
+.question > div { flex: 1; }
+.question .q { font: 600 clamp(1.3rem, 6vw, 1.6rem)/1.25 var(--display); margin: 6px 0 0; }
+.qcm { display: flex; flex-direction: column; gap: 12px; }
+.choix { font-family: var(--body); font-weight: 800; line-height: 1.3; color: var(--ink); }
+.choix:disabled { cursor: default; }
+.choix.a-revoir { opacity: .6; transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
+.consigne { margin: 0; }
+.consigne::before { content: '🔍 '; }
+.message { min-height: 1.5em; text-align: center; font-weight: 800; font-size: 1.1rem; margin: 0; color: var(--ink); }
+.message.astuce { text-align: left; font-size: 1rem; }
 
 /* Bilan */
-.stars { display: flex; justify-content: center; gap: 8px; font-size: 3.2rem; line-height: 1; }
-.stars span { color: var(--track); }
-.stars span.on { color: var(--sun); -webkit-text-stroke: 3px var(--line); }
-.done h2 { text-align: center; font-size: 1.8rem; }
-.done .hint { text-align: center; font-size: 1rem; }
-.badge { align-self: center; background: var(--sun); color: var(--on-sun); border: 3px solid var(--line); border-radius: 99px; padding: 6px 16px; font-weight: 800; box-shadow: 0 3px 0 var(--line); }
-.bye { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.bye svg { width: 120px; height: 120px; overflow: visible; flex: none; }
-.bye .say { background: #fff; color: #3A2E5C; border: 3px solid #3A2E5C; border-radius: 16px; padding: 8px 14px; font-family: var(--display); font-weight: 700; font-size: 1.2rem; box-shadow: 0 4px 0 #3A2E5C; }
+.etoiles { display: flex; justify-content: center; gap: 8px; font-size: 3.2rem; line-height: 1; margin-bottom: 8px; }
+.etoiles span { color: var(--track); }
+.etoiles span.on { color: var(--sun); -webkit-text-stroke: 3px var(--line); }
+.fin { text-align: center; }
+.fin h2 { font-size: 1.8rem; margin-bottom: 8px; }
+.fin .pastille { margin-top: 12px; }
+.au-revoir { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.au-revoir svg { width: 120px; height: 120px; overflow: visible; flex: none; }
+.au-revoir .bulle { font: 700 1.2rem var(--display); }
 
 /* Carnet du parent */
 .table { width: 100%; border-collapse: collapse; font-size: .95rem; }
 .table th, .table td { text-align: left; padding: 8px 6px; border-bottom: 2px solid var(--track); vertical-align: top; }
-.table th { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.table th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
 .table td.n { text-align: center; white-space: nowrap; }
-.tablewrap { overflow-x: auto; }
+.defile { overflow-x: auto; }
 
-/* Récompenses */
-.scene.pop { animation: pop .5s .1s cubic-bezier(.3, 1.6, .5, 1); }
-@keyframes pop { 40% { transform: scale(1.04); } }
-.scene.shake { animation: shake .5s ease-in-out; }
-@keyframes shake {
-  20% { transform: translateX(-10px) rotate(-1.5deg); }
-  40% { transform: translateX(8px) rotate(1deg); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(3px); }
-}
-.feedback.ok { animation: bump .4s cubic-bezier(.3, 1.6, .5, 1); }
-@keyframes bump { from { transform: scale(.6); opacity: 0; } }
-.burst { position: fixed; width: 0; height: 0; pointer-events: none; z-index: 40; }
-.burst i { position: absolute; left: 0; top: 0; font-style: normal; line-height: 1; font-size: var(--s); color: var(--c); -webkit-text-stroke: 1.5px #3A2E5C; animation: burst .8s cubic-bezier(.2, .8, .3, 1) forwards; }
-@keyframes burst {
-  from { transform: translate(-50%, -50%) scale(.3); opacity: 1; }
-  70% { opacity: 1; }
-  to { transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) rotate(var(--r)); opacity: 0; }
-}
-.buddy {
-  position: fixed; right: max(8px, env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); width: 116px; height: 116px; z-index: 30; pointer-events: none;
-  opacity: 0; transform: translateY(24px) scale(.5); transform-origin: 50% 100%;
-  transition: opacity .2s, transform .4s cubic-bezier(.3, 1.6, .5, 1);
-}
-.buddy.on { opacity: 1; transform: none; }
-.buddy svg { display: block; width: 100%; height: 100%; overflow: visible; transform-origin: 50% 90%; }
-.buddy.on svg { animation: hop .8s .25s ease-in-out 2; }
-@keyframes hop { 30% { transform: translateY(-14px) rotate(-6deg); } 60% { transform: rotate(4deg); } }
-.bubble {
-  position: absolute; right: 90px; bottom: 84px; padding: 6px 12px; white-space: nowrap;
-  background: #FFFFFF; color: #3A2E5C; border: 3px solid #3A2E5C; border-radius: 16px; box-shadow: 0 4px 0 #3A2E5C;
-  font-family: var(--display); font-weight: 700; font-size: 1.1rem;
-}
-.confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
-.confetti i { position: absolute; top: -16px; width: 10px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
-@keyframes fall { to { transform: translate(var(--dx), 110vh) rotate(var(--r)); } }
+/* Récompenses : étoiles, personnage, confettis */
+.eclat { position: fixed; width: 0; height: 0; pointer-events: none; z-index: 40; }
+.eclat i { position: absolute; left: 0; top: 0; font-style: normal; line-height: 1; font-size: var(--s); color: var(--c); -webkit-text-stroke: 1.5px var(--line); animation: etoile .8s cubic-bezier(.2, .8, .3, 1) forwards; }
+.copain { position: fixed; right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); width: 116px; height: 116px; z-index: 30; pointer-events: none; }
+.copain svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.copain .bulle { position: absolute; right: 92px; bottom: 80px; padding: 6px 12px; white-space: nowrap; font: 700 1.05rem var(--display); }
+.confettis { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
+.confettis i { position: absolute; top: -16px; width: 10px; height: 14px; border-radius: 2px; animation: chute linear forwards; }
+@keyframes chute { to { transform: translate(var(--dx), 110vh) rotate(var(--r)); } }
 
-.novoice .listen { display: none !important; }
-
-@media (prefers-reduced-motion: reduce) {
-  .btn, .meter i, .ph { transition: none; }
-  .scene.pop, .scene.shake, .feedback.ok, .buddy svg, .ph.nope { animation: none !important; }
-  .buddy { transition: opacity .2s; transform: none; }
+@media (max-width: 380px) {
+  #readCard { padding: 14px 10px; }
+  .texte-lecture p { padding: 0 6px; }
 }
+.sans-voix .voix { display: none !important; }
 </style>
 </head>
 <body>
+<div class="deco" aria-hidden="true"><span style="top:7%;left:3%;color:var(--v-soleil)">★</span><span style="top:30%;right:3%;color:var(--v-rose)">♥</span><span style="top:62%;left:2%;color:var(--v-lilas)">✿</span><span style="top:86%;right:4%;color:var(--v-menthe)">★</span></div>
 <div class="wrap">
-  <div class="top" id="top">
-    <a class="home" href="/">🏠 Mes applis</a>
-  </div>
-
   <main>
     <!-- Accueil -->
     <section id="home" class="stack">
-      <header class="head">
-        <div class="book" aria-hidden="true">📖</div>
-        <div>
-          <h1>Petites histoires</h1>
-          <p>Écoute l'histoire, puis trouve les indices cachés dedans.</p>
-        </div>
-      </header>
+      <div class="entete">
+        <a class="rond" href="/" aria-label="Mes applis">🏠</a>
+        <h1 class="titre">Petites histoires</h1>
+        <button class="rond" type="button" data-reglages aria-label="Réglages">⚙</button>
+      </div>
+      <div class="salut">
+        <svg viewBox="0 0 100 100" id="salutArt" aria-hidden="true"></svg>
+        <div class="bulle"><b>Coucou !</b>Écoute l'histoire, puis trouve les indices cachés dedans.</div>
+      </div>
 
-      <button class="btn sun big" type="button" id="todayBtn"></button>
+      <button class="btn btn-action" type="button" id="todayBtn"></button>
 
-      <div class="panel">
+      <div class="carte">
         <h2>Mes séances de la semaine</h2>
-        <div class="week" id="week"></div>
+        <div class="semaine" id="week"></div>
         <p class="hint" id="weekInfo"></p>
       </div>
 
-      <div class="panel">
+      <div class="carte">
         <h2>Toutes les histoires</h2>
-        <div class="shelf" id="shelf"></div>
+        <div class="etagere" id="shelf"></div>
         <p class="hint">Une étoile pour chaque question trouvée du premier coup. 🏆 = les trois étoiles.</p>
       </div>
+    </section>
 
-      <div class="panel">
-        <h2>Réglages</h2>
-        <div class="switches">
-          <label class="switch" for="autoRead"><input type="checkbox" id="autoRead"><span>Lire à voix haute tout seul</span></label>
-          <label class="switch" for="slow"><input type="checkbox" id="slow"><span>Voix plus lente</span></label>
-          <label class="switch" for="fx"><input type="checkbox" id="fx"><span>Sons et animations</span></label>
-        </div>
+    <!-- Réglages -->
+    <section id="settings" class="stack" hidden>
+      <div class="entete">
+        <button class="rond" type="button" data-retour aria-label="Retour">✕</button>
+        <h1 class="titre">Réglages</h1>
+        <span style="width:48px"></span>
+      </div>
+      <div class="carte">
+        <label class="interrupteur">🔊 Sons <input type="checkbox" id="sons"></label>
+        <label class="interrupteur">✨ Animations <input type="checkbox" id="anims"></label>
+        <label class="interrupteur voix">🗣️ Lire à voix haute tout seul <input type="checkbox" id="autoRead"></label>
+        <label class="interrupteur voix">🐢 Voix plus lente <input type="checkbox" id="slow"></label>
         <p class="hint" id="voiceInfo"></p>
       </div>
-      <div class="foot"><button class="link" type="button" id="parentBtn">Carnet du parent</button></div>
+      <div class="centre"><button class="link" type="button" id="parentBtn">Carnet du parent</button></div>
     </section>
 
     <!-- Lecture -->
     <section id="read" class="stack" hidden>
-      <div class="playbar">
-        <button class="link" type="button" data-quit>← Quitter</button>
-        <div class="meter" aria-hidden="true"><i class="bar"></i></div>
+      <div class="entete">
+        <button class="rond" type="button" data-quit aria-label="Quitter l'histoire">✕</button>
+        <div class="barre" aria-hidden="true"><i class="bar"></i></div>
+        <button class="rond" type="button" data-reglages aria-label="Réglages">⚙</button>
       </div>
-      <h2 class="title" id="readTitle"></h2>
-      <div class="panel">
-        <div class="text" id="readText"></div>
-        <div class="dots" id="dots" aria-hidden="true"></div>
+      <h2 id="readTitle"></h2>
+      <div class="carte" id="readCard">
+        <div class="texte-lecture" id="readText"></div>
+        <div class="points" id="dots" aria-hidden="true"></div>
       </div>
-      <div class="actions">
-        <button class="btn listen" type="button" id="readListen" aria-label="Écouter ce passage">🔊</button>
-        <button class="btn" type="button" id="prevPage">← Avant</button>
-        <button class="btn primary" type="button" id="nextPage">Suite →</button>
+      <div class="rangee">
+        <button class="rond voix" type="button" id="readListen" aria-label="Écouter ce passage">🔊</button>
+        <button class="rond" type="button" id="prevPage" aria-label="Passage d'avant">←</button>
+        <button class="btn btn-action" type="button" id="nextPage">Suite →</button>
       </div>
     </section>
 
     <!-- Questions -->
     <section id="quiz" class="stack" hidden>
-      <div class="playbar">
-        <button class="link" type="button" data-quit>← Quitter</button>
-        <div class="meter" aria-hidden="true"><i class="bar"></i></div>
-        <span class="count" id="qCount"></span>
+      <div class="entete">
+        <button class="rond" type="button" data-quit aria-label="Quitter l'histoire">✕</button>
+        <div class="barre" aria-hidden="true"><i class="bar"></i></div>
+        <span class="compte" id="qCount"></span>
       </div>
-      <div class="scene" id="scene">
-        <div class="qcard">
-          <div><span class="tag" id="qTag"></span><p class="q" id="qText"></p></div>
-          <button class="btn listen" type="button" id="qListen" aria-label="Écouter la question">🔊</button>
-        </div>
+      <div class="carte question" id="scene">
+        <div><span class="etiquette" id="qTag"></span><p class="q" id="qText"></p></div>
+        <button class="rond voix" type="button" id="qListen" aria-label="Écouter la question">🔊</button>
       </div>
-      <div class="choices" id="choices"></div>
-      <p class="prompt" id="prompt" hidden></p>
-      <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
-      <button class="btn primary big" type="button" id="nextQ" hidden>Question suivante →</button>
-      <div class="panel" id="storyPanel">
-        <div class="actions">
-          <button class="btn listen" type="button" id="storyListen" aria-label="Écouter toute l'histoire">🔊</button>
+      <div class="qcm" id="choices"></div>
+      <p class="astuce consigne" id="prompt" hidden></p>
+      <p class="message" id="feedback" role="status" aria-live="polite"></p>
+      <button class="btn btn-action" type="button" id="nextQ" hidden>Question suivante →</button>
+      <div class="carte stack" id="storyPanel">
+        <div class="rangee">
+          <button class="rond voix" type="button" id="storyListen" aria-label="Écouter toute l'histoire">🔊</button>
           <button class="btn" type="button" id="storyToggle">📖 Revoir l'histoire</button>
+          <span class="etiquette" id="storyLabel" hidden>L'histoire</span>
         </div>
-        <div class="text" id="storyText" hidden></div>
+        <div class="texte-lecture" id="storyText" hidden></div>
       </div>
     </section>
 
     <!-- Bilan -->
-    <section id="done" class="stack done" hidden>
-      <div class="panel">
-        <div class="stars" id="stars" aria-hidden="true"></div>
+    <section id="done" class="stack" hidden>
+      <div class="entete">
+        <a class="rond" href="/" aria-label="Mes applis">🏠</a>
+        <span class="titre">Petites histoires</span>
+        <button class="rond" type="button" data-reglages aria-label="Réglages">⚙</button>
+      </div>
+      <div class="carte fin" id="doneCard">
+        <div class="etoiles" id="stars" aria-hidden="true"></div>
         <h2 id="doneTitle"></h2>
         <p class="hint" id="doneText"></p>
-        <p class="badge" id="badge" hidden>🏅 Séance du jour faite !</p>
+        <span class="pastille soleil" id="badge" hidden>🏅 Séance du jour faite !</span>
       </div>
-      <div class="bye" id="bye" aria-hidden="true"><svg viewBox="0 0 100 100" id="byeArt"></svg><span class="say" id="byeSay"></span></div>
-      <button class="btn big" type="button" id="againBtn">Encore une histoire</button>
-      <button class="btn primary big" type="button" id="backBtn">Retour aux histoires</button>
+      <div class="au-revoir" id="bye" aria-hidden="true"><svg viewBox="0 0 100 100" id="byeArt"></svg><span class="bulle" id="byeSay"></span></div>
+      <button class="btn btn-action" type="button" id="backBtn">Retour aux histoires</button>
+      <button class="btn" type="button" id="againBtn">Encore une histoire</button>
     </section>
 
     <!-- Carnet du parent -->
     <section id="parent" class="stack" hidden>
-      <div class="panel">
-        <h2>Carnet du parent</h2>
-        <p class="hint">Les résultats restent sur cet appareil. « Du 1er coup » : bonne réponse, puis bonne phrase preuve, sans erreur.</p>
-        <p id="parentSum"></p>
-        <div class="tablewrap"><table class="table" id="parentTable"></table></div>
+      <div class="entete">
+        <button class="rond" type="button" data-retour aria-label="Retour">✕</button>
+        <h1 class="titre">Carnet du parent</h1>
+        <span style="width:48px"></span>
       </div>
-      <button class="btn big" type="button" id="parentBack">Retour</button>
-      <div class="foot"><button class="link" type="button" id="resetBtn">Effacer les progrès</button></div>
+      <div class="carte">
+        <p class="hint">Les résultats restent sur cet appareil. « Du 1er coup » : sans erreur.</p>
+        <p id="parentSum"></p>
+        <div class="defile"><table class="table" id="parentTable"></table></div>
+      </div>
+      <div class="centre"><button class="link" type="button" id="resetBtn">Effacer les progrès</button></div>
     </section>
   </main>
 </div>
 
-<div class="buddy" id="buddy" aria-hidden="true">
-  <div class="bubble" id="bubble" hidden></div>
+<div class="copain" id="buddy" aria-hidden="true" hidden>
+  <div class="bulle" id="bubble" hidden></div>
   <svg viewBox="0 0 100 100" id="buddyArt"></svg>
 </div>
 
@@ -437,7 +616,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
       texte: [
         ['Hugo et Adam construisaient une cabane au fond du bois.', 'Hugo voulait une cabane haute, dans un arbre.', 'Adam voulait une cabane par terre, cachée sous les branches.'],
         ['Ils se sont disputés si fort que les oiseaux se sont envolés.', 'Hugo est rentré chez lui sans dire au revoir.'],
-        ['Le lendemain, Hugo est revenu avec une corde et un panier.', 'Il a dit : « Et si on faisait les deux ? Une cabane en bas, et un panier pour monter nos trésors dans l\'arbre. »', 'Adam a souri et lui a tendu un marteau.']
+        ['Le lendemain, Hugo est revenu avec une corde et un panier.', 'Il a dit : « Et si on faisait les deux ? »', '« Une cabane en bas, et un panier pour monter nos trésors dans l\'arbre. »', 'Adam a souri et lui a tendu un marteau.']
       ],
       questions: [
         { q: 'Pourquoi les deux garçons se disputent-ils ?', r: ['Ils ne veulent pas la même cabane.', 'Ils ont perdu le marteau.', 'Il pleut dans le bois.'], preuve: ['Hugo voulait une cabane haute', 'Adam voulait une cabane par terre'] },
@@ -450,12 +629,12 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
       texte: [
         ['Samedi, l\'équipe de Zoé jouait la finale du tournoi.', 'À la dernière minute, l\'arbitre a sifflé un penalty pour son équipe.', 'L\'entraîneur a choisi Zoé pour le tirer.'],
         ['Zoé a posé le ballon.', 'Ses mains tremblaient et elle n\'entendait plus rien.', 'Elle a tiré… et le ballon est passé à côté du but.'],
-        ['Zoé s\'est assise dans l\'herbe, la tête dans les mains.', 'Sa copine Maëlle est venue s\'asseoir à côté d\'elle.', '« Sans tes deux buts du début, on ne serait jamais arrivées en finale », lui a-t-elle dit.', 'Zoé a relevé la tête.']
+        ['Zoé s\'est assise dans l\'herbe, la tête dans les mains.', 'Sa copine Maëlle est venue s\'asseoir à côté d\'elle.', '« Sans tes deux buts, on ne serait pas en finale », lui a-t-elle dit.', 'Zoé a relevé la tête.']
       ],
       questions: [
         { q: 'Comment se sent Zoé avant de tirer ?', r: ['Elle est très stressée.', 'Elle s\'ennuie.', 'Elle est en colère.'], preuve: ['mains tremblaient'] },
         { q: 'Pourquoi Zoé met-elle la tête dans les mains ?', r: ['Elle est triste d\'avoir raté.', 'Elle a mal à la tête.', 'Elle a froid.'], preuve: ['à côté du but'] },
-        { q: 'Pourquoi Maëlle parle-t-elle des deux buts du début ?', r: ['Pour consoler Zoé.', 'Pour se moquer d\'elle.', 'Pour changer d\'équipe.'], preuve: ['Sans tes deux buts', 'Zoé a relevé la tête'] }
+        { q: 'Pourquoi Maëlle parle-t-elle des deux buts de Zoé ?', r: ['Pour consoler Zoé.', 'Pour se moquer d\'elle.', 'Pour changer d\'équipe.'], preuve: ['Sans tes deux buts', 'Zoé a relevé la tête'] }
       ]
     },
     {
@@ -463,7 +642,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
       texte: [
         ['En rangeant le grenier, Tom a trouvé une vieille boîte en fer.', 'Dedans, il y avait une carte dessinée à la main et une clé rouillée.', 'Sur la carte, une croix était tracée sous le grand chêne du jardin.'],
         ['Tom a pris une pelle et a creusé sous le chêne pendant une heure.', 'Il a fini par toucher quelque chose de dur : un petit coffre.'],
-        ['La clé tournait mal, mais le coffre s\'est ouvert.', 'À l\'intérieur, il y avait des billes, un sifflet et un mot : « Mes trésors de quand j\'avais ton âge. Papi. »', 'Tom a couru montrer le mot à son grand-père, qui avait les yeux qui brillaient.']
+        ['La clé tournait mal, mais le coffre s\'est ouvert.', 'À l\'intérieur, il y avait des billes, un sifflet et un petit mot.', 'Sur le mot, on lisait : « Mes trésors de quand j\'avais ton âge. Papi. »', 'Tom a couru montrer le mot à son grand-père, qui avait les yeux qui brillaient.']
       ],
       questions: [
         { q: 'À quoi sert la clé rouillée ?', r: ['À ouvrir le coffre.', 'À ouvrir le grenier.', 'À réparer la pelle.'], preuve: ['La clé tournait mal'] },
@@ -475,12 +654,12 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
       id: 'musee', titre: 'Perdue au musée', emoji: '🦖',
       texte: [
         ['La classe de Jade visitait le musée des dinosaures.', 'Jade s\'est arrêtée longtemps devant un squelette géant.', 'Quand elle s\'est retournée, elle ne voyait plus personne de sa classe.'],
-        ['Elle avait envie de pleurer.', 'Puis elle s\'est souvenue de ce que la maîtresse avait dit dans le bus : « Si vous êtes perdus, allez voir une personne qui porte un badge du musée. »'],
+        ['Elle avait envie de pleurer.', 'Puis elle s\'est souvenue de ce que la maîtresse avait dit dans le bus.', '« Si vous êtes perdus, allez voir une personne avec un badge du musée. »'],
         ['Jade a trouvé une dame avec un badge bleu.', 'La dame a parlé dans son talkie-walkie.', 'Cinq minutes plus tard, la maîtresse arrivait en courant, très soulagée.']
       ],
       questions: [
         { q: 'Pourquoi Jade a-t-elle perdu sa classe ?', r: ['Elle a regardé le squelette trop longtemps.', 'Elle est partie manger.', 'Elle est arrivée en retard.'], preuve: ['arrêtée longtemps'] },
-        { q: 'Pourquoi Jade va-t-elle voir la dame au badge bleu ?', r: ['Elle suit le conseil de la maîtresse.', 'C\'est sa tante.', 'Elle veut acheter un billet.'], preuve: ['Si vous êtes perdus'] },
+        { q: 'Pourquoi Jade va-t-elle voir la dame au badge bleu ?', r: ['Elle suit le conseil de la maîtresse.', 'C\'est sa tante.', 'Elle veut acheter un billet.'], preuve: ['Si vous êtes perdus', 's\'est souvenue'] },
         { q: 'Que veut dire « très soulagée » ?', r: ['Elle n\'est plus inquiète.', 'Elle est très fatiguée.', 'Elle est très fâchée.'], preuve: ['très soulagée'] }
       ]
     },
@@ -489,7 +668,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
       texte: [
         ['Monsieur Ali était très fier de son potager.', 'Mais chaque matin, il trouvait des salades grignotées et des carottes arrachées.', 'Par terre, il y avait de petites crottes toutes rondes.'],
         ['Un soir, il s\'est caché derrière la fenêtre avec sa lampe.', 'Vers minuit, trois petites boules grises sont sorties de la haie en sautillant.'],
-        ['Monsieur Ali aurait pu se fâcher.', 'Il a préféré planter un coin de salades rien que pour eux, au bord de la haie.', 'Depuis, ses carottes poussent tranquilles, et il regarde les lapins dîner tous les soirs.']
+        ['Monsieur Ali aurait pu se fâcher.', 'Il a préféré planter un coin de salades rien que pour eux, au bord de la haie.', 'Depuis, ses carottes poussent tranquilles.', 'Et tous les soirs, il regarde les lapins dîner.']
       ],
       questions: [
         { q: 'Qui mange les légumes de monsieur Ali ?', r: ['Des lapins', 'Des oiseaux', 'Le voisin'], preuve: ['boules grises', 'regarde les lapins'] },
@@ -1006,7 +1185,9 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
 
   /* ---------- Réglages et progrès (restent dans le navigateur) ---------- */
   var KEY_PREFS = 'marc.histoires.reglages', KEY_PROG = 'marc.histoires.progres';
-  var prefs = Object.assign({ autoRead: true, slow: false, fx: true }, store.get(KEY_PREFS, {}));
+  var prefs = Object.assign({ autoRead: true, slow: false, sons: true, anims: true }, store.get(KEY_PREFS, {}));
+  function applyCalm() { document.documentElement.classList.toggle('calme', !prefs.anims); }
+  applyCalm();
   var prog = store.get(KEY_PROG, null);
   if (!prog || typeof prog !== 'object') prog = {};
   if (!prog.stories || typeof prog.stories !== 'object') prog.stories = {};
@@ -1039,11 +1220,11 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     chooseVoice();
     if (synth.addEventListener) synth.addEventListener('voiceschanged', chooseVoice);
   } else {
-    document.documentElement.classList.add('novoice');
+    document.documentElement.classList.add('sans-voix');
   }
   function clearSpeak() {
-    $$('.ph.speak').forEach(function (el) { el.classList.remove('speak'); });
-    if (speakingBtn) speakingBtn.classList.remove('on');
+    $$('.ph.lue').forEach(function (el) { el.classList.remove('lue'); });
+    if (speakingBtn) speakingBtn.classList.remove('lit');
     speakingBtn = null;
   }
   function stopSpeak() {
@@ -1057,18 +1238,18 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     if (!synth || !items.length) return;
     var id = speakId;
     speakingBtn = btn || null;
-    if (btn) btn.classList.add('on');
+    if (btn) btn.classList.add('lit');
     var i = 0;
     function nextOne() {
       if (id !== speakId) return;
-      $$('.ph.speak').forEach(function (el) { el.classList.remove('speak'); });
+      $$('.ph.lue').forEach(function (el) { el.classList.remove('lue'); });
       if (i >= items.length) { clearSpeak(); return; }
       var it = items[i++];
       var u = new SpeechSynthesisUtterance(it.text.replace(/[«»]/g, ''));
       u.lang = 'fr-FR';
       if (voice) u.voice = voice;
       u.rate = prefs.slow ? 0.75 : 0.92;
-      u.onstart = function () { if (id === speakId && it.el) it.el.classList.add('speak'); };
+      u.onstart = function () { if (id === speakId && it.el) it.el.classList.add('lue'); };
       u.onend = u.onerror = function () { setTimeout(nextOne, 120); };
       synth.speak(u);
     }
@@ -1092,7 +1273,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     win: [{ f: 523, at: 0, d: 0.18 }, { f: 659, at: 0.12, d: 0.18 }, { f: 784, at: 0.24, d: 0.18 }, { f: 1047, at: 0.36, d: 0.45 }]
   };
   function sound(name) {
-    if (!prefs.fx) return;
+    if (!prefs.sons) return;
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
       if (audio.state === 'suspended') audio.resume();
@@ -1112,14 +1293,14 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     } catch (e) {}
   }
   function sparkle(el) {
-    if (!prefs.fx || reduced() || !el) return;
+    if (!prefs.anims || reduced() || !el) return;
     var r = el.getBoundingClientRect();
     var box = document.createElement('div');
-    box.className = 'burst';
+    box.className = 'eclat';
     box.setAttribute('aria-hidden', 'true');
     box.style.left = r.left + r.width / 2 + 'px';
     box.style.top = r.top + r.height / 2 + 'px';
-    var colors = ['var(--sun)', 'var(--sun)', 'var(--pink)', 'var(--mint)'];
+    var colors = ['var(--v-soleil)', 'var(--v-soleil)', 'var(--v-rose)', 'var(--v-menthe)'];
     for (var i = 0; i < 12; i++) {
       var p = document.createElement('i'), ang = (i / 12) * Math.PI * 2 + Math.random() * 0.4, dist = 80 + Math.random() * 60;
       p.textContent = '★';
@@ -1134,11 +1315,11 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     setTimeout(function () { box.remove(); }, 1000);
   }
   function confetti() {
-    if (!prefs.fx || reduced()) return;
+    if (!prefs.anims || reduced()) return;
     var box = document.createElement('div');
-    box.className = 'confetti';
+    box.className = 'confettis';
     box.setAttribute('aria-hidden', 'true');
-    var colors = ['var(--sun)', 'var(--pink)', 'var(--mint)', 'var(--accent)'];
+    var colors = ['var(--v-soleil)', 'var(--v-rose)', 'var(--v-menthe)', 'var(--v-ciel)', 'var(--v-lilas)'];
     for (var i = 0; i < 70; i++) {
       var p = document.createElement('i');
       p.style.left = Math.random() * 100 + '%';
@@ -1153,7 +1334,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     setTimeout(function () { box.remove(); }, 3600);
   }
   function replay(el, cls) {
-    el.classList.remove('pop', 'shake');
+    el.classList.remove('anim-bravo', 'anim-non', 'anim-arrive');
     void el.offsetWidth;
     el.classList.add(cls);
   }
@@ -1172,36 +1353,37 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     return '<g stroke="' + INK + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">' + c[1] + '</g>';
   }
   function showCreature(text) {
-    if (!prefs.fx) return;
     var b = $('#buddy'), bubble = $('#bubble');
     $('#buddyArt').innerHTML = creatureSvg(nextCreature());
     bubble.textContent = text || '';
     bubble.hidden = !text;
-    b.classList.remove('on');
-    void b.offsetWidth;
-    b.classList.add('on');
+    b.hidden = false;
+    replay(b, 'anim-arrive');
     clearTimeout(buddyTimer);
-    buddyTimer = setTimeout(function () { b.classList.remove('on'); }, 2000);
+    buddyTimer = setTimeout(hideCreature, 2200);
   }
   function hideCreature() {
     clearTimeout(buddyTimer);
-    $('#buddy').classList.remove('on');
+    $('#buddy').hidden = true;
   }
   // Erreur : la carte secoue la tête et le téléphone vibre un court instant. Pas de personnage.
   function oops() {
     hideCreature();
-    if (!prefs.fx) return;
-    replay($('#scene'), 'shake');
-    sound('ko');
-    if (navigator.vibrate) navigator.vibrate(60);
+    var sc = $('#scene');
+    sc.classList.add('a-retenter');
+    clearTimeout(oops.t);
+    oops.t = setTimeout(function () { sc.classList.remove('a-retenter'); }, 1200);
+    replay(sc, 'anim-non');
+    if (prefs.anims && navigator.vibrate) navigator.vibrate(60);
   }
   var CHEERS = ['Bien vu !', 'Super !', 'Trouvé !', 'Bravo !', 'Quel détective !'];
 
   /* ---------- Écrans ---------- */
-  var views = { home: $('#home'), read: $('#read'), quiz: $('#quiz'), done: $('#done'), parent: $('#parent') };
+  var views = { home: $('#home'), settings: $('#settings'), read: $('#read'), quiz: $('#quiz'), done: $('#done'), parent: $('#parent') };
+  var current = 'home', before = 'home';
   function show(name) {
     Object.keys(views).forEach(function (k) { views[k].hidden = (k !== name); });
-    $('#top').hidden = !(name === 'home' || name === 'done');
+    current = name;
     hideCreature();
     window.scrollTo(0, 0);
   }
@@ -1217,8 +1399,9 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
 
   function renderHome() {
     var next = nextStory();
-    $('#todayBtn').innerHTML = '';
-    $('#todayBtn').appendChild(document.createTextNode('Histoire du jour : ' + next.emoji + ' ' + next.titre));
+    $('#todayBtn').innerHTML = '<span></span><small>Environ 8 minutes, sans se presser</small>';
+    $('#todayBtn').firstChild.textContent = 'Histoire du jour : ' + next.emoji + ' ' + next.titre;
+    $('#salutArt').innerHTML = creatureSvg(CREATURES[(new Date().getDate()) % CREATURES.length]);
     $('#todayBtn').dataset.id = next.id;
 
     var week = $('#week'), labels = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
@@ -1228,7 +1411,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
       d.setDate(d.getDate() - k);
       var on = prog.days.indexOf(today(d)) >= 0;
       var cell = document.createElement('div');
-      cell.className = 'day' + (on ? ' on' : '') + (k === 0 ? ' today' : '');
+      cell.className = 'jour' + (on ? ' fait' : '') + (k === 0 ? ' auj' : '');
       cell.innerHTML = '<i>' + (on ? '★' : '') + '</i><b>' + labels[d.getDay()] + '</b>';
       cell.setAttribute('aria-label', (k === 0 ? 'Aujourd\'hui' : d.toLocaleDateString('fr-FR', { weekday: 'long' })) + (on ? ' : séance faite' : ''));
       week.appendChild(cell);
@@ -1241,7 +1424,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     HISTOIRES.forEach(function (h) {
       var e = entry(h.id), b = document.createElement('button');
       b.type = 'button';
-      b.className = 'story' + (h === next ? ' next' : '');
+      b.className = 'histoire' + (h === next ? ' suivante' : '');
       var s = '';
       for (var i = 0; i < 3; i++) s += '<span class="' + (i < e.best ? 'on' : '') + '">★</span>';
       b.innerHTML = '<span class="e" aria-hidden="true"></span><span class="t"></span><span class="s">' + s + (e.best === 3 ? ' 🏆' : '') + '</span>';
@@ -1254,22 +1437,20 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
 
     $('#autoRead').checked = prefs.autoRead;
     $('#slow').checked = prefs.slow;
-    $('#fx').checked = prefs.fx;
-    if (!synth) {
-      $('#autoRead').disabled = $('#slow').disabled = true;
-      $('#voiceInfo').textContent = 'Cet appareil ne sait pas lire à voix haute.';
-    }
+    $('#sons').checked = prefs.sons;
+    $('#anims').checked = prefs.anims;
+    if (!synth) $('#voiceInfo').textContent = 'Cet appareil ne sait pas lire à voix haute.';
   }
 
   // Texte en phrases à toucher. only : numéro de paragraphe à afficher seul (lecture page par page).
-  function renderText(box, h, only) {
+  function renderText(box, h, page) {
     box.innerHTML = '';
     h.texte.forEach(function (par, pi) {
-      if (only != null && pi !== only) return;
+      if (page && pi !== page.p) return;
       var p = document.createElement('p');
       p.dataset.p = pi;
       h.phrases.forEach(function (ph) {
-        if (ph.p !== pi) return;
+        if (ph.p !== pi || (page && page.ids.indexOf(ph.i) < 0)) return;
         var s = document.createElement('span');
         s.className = 'ph';
         s.dataset.i = ph.i;
@@ -1283,20 +1464,40 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
 
   /* ---------- Séance ---------- */
   var cur = null;
-  function steps() { return cur.h.texte.length + cur.h.questions.length; }
+  function steps() { return cur.h.pages.length + cur.h.questions.length; }
   function setMeter(done) { $$('.bar').forEach(function (b) { b.style.width = Math.round(done / steps() * 100) + '%'; }); }
 
+  // Lecture page par page : 4 lignes au plus par écran (mesurées sur l'écran de l'appareil),
+  // sans couper une phrase ni mélanger deux paragraphes.
+  function paginate(h) {
+    var box = $('#readText'), pages = [];
+    var line = parseFloat(getComputedStyle(box).lineHeight) || 44;
+    h.texte.forEach(function (par, pi) {
+      var page = null;
+      h.phrases.forEach(function (ph) {
+        if (ph.p !== pi) return;
+        if (page) {
+          renderText(box, h, { p: pi, ids: page.ids.concat(ph.i) });
+          if (box.getBoundingClientRect().height > line * 4 + 2) page = null;
+        }
+        if (!page) { page = { p: pi, ids: [] }; pages.push(page); }
+        page.ids.push(ph.i);
+      });
+    });
+    return pages;
+  }
   function startStory(h) {
     stopSpeak();
     cur = { h: h, page: 0, qi: 0, results: [], listens: 0 };
     show('read');
+    h.pages = paginate(h);
     showPage();
   }
   function showPage() {
-    var h = cur.h, n = h.texte.length;
+    var h = cur.h, n = h.pages.length;
     $('#readTitle').textContent = h.emoji + ' ' + h.titre;
-    renderText($('#readText'), h, cur.page);
-    $('#dots').innerHTML = h.texte.map(function (_, i) { return '<i class="' + (i === cur.page ? 'on' : '') + '"></i>'; }).join('');
+    renderText($('#readText'), h, h.pages[cur.page]);
+    $('#dots').innerHTML = h.pages.map(function (_, i) { return '<i class="' + (i === cur.page ? 'on' : '') + '"></i>'; }).join('');
     $('#prevPage').disabled = cur.page === 0;
     $('#nextPage').textContent = cur.page === n - 1 ? 'Aux questions →' : 'Suite →';
     setMeter(cur.page);
@@ -1309,7 +1510,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   });
   $('#prevPage').addEventListener('click', function () { if (cur.page > 0) { cur.page--; showPage(); } });
   $('#nextPage').addEventListener('click', function () {
-    if (cur.page < cur.h.texte.length - 1) { cur.page++; showPage(); window.scrollTo(0, 0); return; }
+    if (cur.page < cur.h.pages.length - 1) { cur.page++; showPage(); window.scrollTo(0, 0); return; }
     stopSpeak();
     show('quiz');
     showQuestion();
@@ -1323,14 +1524,15 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     $('#qTag').textContent = 'Question ' + (cur.qi + 1) + ' sur ' + h.questions.length;
     $('#qCount').textContent = (cur.qi + 1) + ' / ' + h.questions.length;
     $('#qText').textContent = q.q;
-    setMeter(h.texte.length + cur.qi);
+    setMeter(h.pages.length + cur.qi);
     var box = $('#choices');
     box.innerHTML = '';
-    shuffle(q.r.map(function (t, i) { return { t: t, ok: i === 0 }; })).forEach(function (c) {
+    shuffle(q.r.map(function (t, i) { return { t: t, ok: i === 0 }; })).forEach(function (c, k) {
       var b = document.createElement('button');
       b.type = 'button';
-      b.className = 'btn choice';
-      b.textContent = c.t;
+      b.className = 'choix';
+      b.innerHTML = '<span class="lettre" aria-hidden="true">' + 'ABCDEF'[k] + '</span><span class="rep"></span>';
+      b.querySelector('.rep').textContent = c.t;
       b.dataset.ok = c.ok ? '1' : '';
       b.addEventListener('click', function () { answer(b); });
       box.appendChild(b);
@@ -1338,17 +1540,19 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     $('#prompt').hidden = true;
     $('#nextQ').hidden = true;
     $('#feedback').textContent = '';
-    $('#feedback').className = 'feedback';
+    $('#feedback').className = 'message';
+    $('#scene').classList.remove('reussie', 'a-retenter');
     renderText($('#storyText'), h);
-    $('#storyText').classList.remove('picking');
+    $('#storyText').classList.remove('cherche');
     $('#storyText').hidden = true;
     $('#storyToggle').hidden = false;
+    $('#storyLabel').hidden = true;
     $('#storyToggle').textContent = '📖 Revoir l\'histoire';
     if (prefs.autoRead) readQuestion();
   }
   function readQuestion() {
     var items = [{ text: $('#qText').textContent }];
-    $$('#choices .choice:not(:disabled)').forEach(function (b) { items.push({ text: b.textContent }); });
+    $$('#choices .choix:not(:disabled) .rep').forEach(function (b) { items.push({ text: b.textContent }); });
     speak(items, $('#qListen'));
   }
   $('#qListen').addEventListener('click', function () {
@@ -1359,6 +1563,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   function openStory(zone) {
     $('#storyText').hidden = false;
     $('#storyToggle').hidden = true;
+    $('#storyLabel').hidden = false;
     if (zone != null) {
       $$('#storyText p').forEach(function (p) { p.classList.toggle('zone', Number(p.dataset.p) === zone); });
       var z = $('#storyText p.zone');
@@ -1378,26 +1583,27 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     cur.aTries++;
     if (!b.dataset.ok) {
       b.disabled = true;
-      b.classList.add('wrong');
+      b.classList.add('a-revoir');
       oops();
-      $('#feedback').className = 'feedback';
-      $('#feedback').textContent = 'Pas tout à fait. La réponse est dans le passage en jaune.';
+      $('#feedback').className = 'message astuce';
+      $('#feedback').textContent = 'Presque ! La réponse est dans le passage en jaune.';
       openStory(q.zone);
       if (prefs.autoRead) speak([{ text: 'Pas tout à fait. Relis le passage en jaune.' }]);
       return;
     }
     stopSpeak();
-    b.classList.add('right');
-    $$('#choices .choice').forEach(function (c) { if (c !== b) c.hidden = true; });
+    b.classList.add('bon');
+    $$('#choices .choix').forEach(function (c) { if (c !== b) c.hidden = true; });
     sound('ok');
     sparkle(b);
-    if (prefs.fx) replay($('#scene'), 'pop');
+    replay(b, 'anim-bravo');
     cur.phase = 'proof';
     $('#feedback').textContent = '';
+    $('#feedback').className = 'message';
     $('#prompt').hidden = false;
-    $('#prompt').textContent = '🔍 Oui ! Maintenant, touche la phrase de l\'histoire qui le prouve.';
+    $('#prompt').textContent = 'Oui ! Maintenant, touche la phrase de l\'histoire qui le prouve.';
     openStory();
-    $('#storyText').classList.add('picking');
+    $('#storyText').classList.add('cherche');
     if ($('#prompt').scrollIntoView) $('#prompt').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
     if (prefs.autoRead) speak([{ text: 'Oui ! Maintenant, touche la phrase de l\'histoire qui le prouve.' }]);
   }
@@ -1409,17 +1615,17 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     var q = cur.h.questions[cur.qi], i = Number(el.dataset.i);
     cur.pTries++;
     if (q.ids.indexOf(i) >= 0) { proofFound(el); return; }
-    el.classList.remove('nope');
-    void el.offsetWidth;
-    if (prefs.fx && !reduced()) el.classList.add('nope');
+    el.classList.add('pas-ici');
+    setTimeout(function () { el.classList.remove('pas-ici'); }, 1200);
     oops();
+    $('#feedback').className = 'message astuce';
     if (cur.pTries === 1) {
       $('#feedback').textContent = 'Pas cette phrase. Cherche dans le passage en jaune.';
       openStory(q.zone);
     } else {
       $('#feedback').textContent = 'Regarde la phrase qui brille.';
-      q.ids.forEach(function (id) { var s = $('#storyText .ph[data-i="' + id + '"]'); if (s) s.classList.add('glow'); });
-      var g = $('#storyText .ph.glow');
+      q.ids.forEach(function (id) { var s = $('#storyText .ph[data-i="' + id + '"]'); if (s) s.classList.add('brille'); });
+      var g = $('#storyText .ph.brille');
       if (g && g.scrollIntoView) g.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' });
     }
   });
@@ -1427,20 +1633,21 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   function proofFound(el) {
     stopSpeak();
     cur.phase = 'next';
-    $$('#storyText .glow').forEach(function (s) { s.classList.remove('glow'); });
-    el.classList.add('found');
-    $('#storyText').classList.remove('picking');
+    $$('#storyText .brille').forEach(function (s) { s.classList.remove('brille'); });
+    el.classList.add('trouvee');
+    $('#storyText').classList.remove('cherche');
     $('#prompt').hidden = true;
     var fb = $('#feedback');
-    fb.className = 'feedback';
-    void fb.offsetWidth;
-    fb.className = 'feedback ok';
-    fb.textContent = pick(CHEERS) + ' C\'est écrit là.';
+    fb.className = 'message';
+    fb.textContent = '⭐ ' + pick(CHEERS) + ' C\'est écrit là.';
+    $('#scene').classList.remove('a-retenter');
+    $('#scene').classList.add('reussie');
+    replay($('#scene'), 'anim-bravo');
     sound('ok');
     sparkle(el);
     showCreature(cur.aTries === 1 && cur.pTries === 1 ? pick(CHEERS) : '');
     cur.results.push({ a: cur.aTries, p: cur.pTries });
-    setMeter(cur.h.texte.length + cur.qi + 1);
+    setMeter(cur.h.pages.length + cur.qi + 1);
     var last = cur.qi === cur.h.questions.length - 1;
     $('#nextQ').textContent = last ? 'Voir mes étoiles ★' : 'Question suivante →';
     $('#nextQ').hidden = false;
@@ -1473,7 +1680,7 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
       ? 'Tu as tout trouvé du premier coup. ' + (e.best === 3 ? 'Un trophée 🏆 pour « ' + h.titre + ' » !' : '')
       : 'Tu as trouvé toutes les réponses et toutes les preuves. ' + (n ? n + (n > 1 ? ' étoiles' : ' étoile') + ' gagnée' + (n > 1 ? 's' : '') + ' du premier coup.' : 'Tu peux la relire un autre jour pour gagner des étoiles.');
     $('#badge').hidden = !firstToday;
-    $('#bye').hidden = !prefs.fx;
+    replay($('#doneCard'), 'anim-bravo');
     $('#byeArt').innerHTML = creatureSvg(nextCreature());
     $('#byeSay').textContent = firstToday ? 'À demain !' : 'Bravo !';
     sound('win');
@@ -1487,7 +1694,18 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
   /* ---------- Réglages ---------- */
   $('#autoRead').addEventListener('change', function () { prefs.autoRead = this.checked; savePrefs(); });
   $('#slow').addEventListener('change', function () { prefs.slow = this.checked; savePrefs(); });
-  $('#fx').addEventListener('change', function () { prefs.fx = this.checked; savePrefs(); });
+  $('#sons').addEventListener('change', function () { prefs.sons = this.checked; savePrefs(); });
+  $('#anims').addEventListener('change', function () { prefs.anims = this.checked; savePrefs(); applyCalm(); });
+  $$('[data-reglages]').forEach(function (b) {
+    b.addEventListener('click', function () { stopSpeak(); before = current; renderHome(); show('settings'); });
+  });
+  $$('[data-retour]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (current === 'parent') { show('settings'); return; }
+      if (before === 'home') renderHome();
+      show(before);
+    });
+  });
 
   /* ---------- Carnet du parent ---------- */
   function fmt(d) { return d ? d.split('-').reverse().slice(0, 2).join('/') : ''; }
@@ -1506,7 +1724,6 @@ button { font: inherit; color: inherit; touch-action: manipulation; }
     $('#parentTable').innerHTML = rows;
   }
   $('#parentBtn').addEventListener('click', function () { renderParent(); show('parent'); });
-  $('#parentBack').addEventListener('click', function () { renderHome(); show('home'); });
   $('#resetBtn').addEventListener('click', function () {
     if (!window.confirm('Effacer toutes les étoiles et les séances sur cet appareil ?')) return;
     prog = { stories: {}, days: [] };

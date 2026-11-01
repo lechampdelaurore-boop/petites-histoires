@@ -1,5 +1,5 @@
 // Joue une histoire entière sur le site EN LIGNE, à plusieurs tailles de téléphone :
-// pas de débordement sur le côté, boutons de lecture visibles sans faire défiler,
+// pas de débordement sur le côté, boutons de lecture visibles sans faire défiler, 4 lignes au plus par écran de lecture,
 // une erreur volontaire (indice), les preuves, le bilan, et aucune erreur dans la console.
 // Usage : node tests/telephone.cjs [url]   (captures dans captures/)
 const { chromium } = require('playwright');
@@ -29,7 +29,7 @@ const HISTOIRES = new Function(src.split('/* HISTOIRES-DEBUT */')[1].split('/* H
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));
     page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-    await page.addInitScript(() => localStorage.setItem('marc.histoires.reglages', JSON.stringify({ autoRead: false, fx: true })));
+    await page.addInitScript(() => localStorage.setItem('marc.histoires.reglages', JSON.stringify({ autoRead: false, anims: true, sons: true })));
     await page.goto(URL + '?nocache=' + Date.now());
     await page.waitForTimeout(300);
     const wide = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -48,22 +48,29 @@ const HISTOIRES = new Function(src.split('/* HISTOIRES-DEBUT */')[1].split('/* H
     await page.click('#todayBtn');
     await page.waitForTimeout(200);
     await check('lecture', await below('#nextPage'));
-    for (let p = 0; p < story.texte.length; p++) { await page.click('#nextPage'); await page.waitForTimeout(150); }
+    // Lecture : 4 lignes au plus par écran, jusqu'aux questions.
+    let maxLines = 0;
+    for (let p = 0; p < 20 && await page.isVisible('#nextPage'); p++) {
+      maxLines = Math.max(maxLines, await page.evaluate(() => { const t = document.querySelector('#readText'); return Math.round(t.getBoundingClientRect().height / parseFloat(getComputedStyle(t).lineHeight)); }));
+      await page.click('#nextPage');
+      await page.waitForTimeout(150);
+    }
+    if (maxLines > 4) { failed = true; errors.push('jusqu\'à ' + maxLines + ' lignes sur un écran de lecture'); }
 
     for (let qi = 0; qi < story.questions.length; qi++) {
       const q = story.questions[qi];
       if (qi === 0) {
-        await page.click('#choices .choice:not([data-ok="1"])');
+        await page.click('#choices .choix:not([data-ok="1"])');
         await page.waitForTimeout(600);
         await check('question-indice');
       }
-      await page.click('#choices .choice[data-ok="1"]');
+      await page.click('#choices .choix[data-ok="1"]');
       await page.waitForTimeout(300);
       const phrase = story.texte.flat().find(t => t.includes(q.preuve[0]));
       if (qi === 0) await check('preuve');
       await page.locator('#storyText .ph', { hasText: phrase }).click();
       await page.waitForTimeout(400);
-      if (await page.locator('#storyText .ph.found').count() !== 1) { failed = true; errors.push('preuve non acceptée : ' + phrase); }
+      if (await page.locator('#storyText .ph.trouvee').count() !== 1) { failed = true; errors.push('preuve non acceptée : ' + phrase); }
       await page.click('#nextQ');
       await page.waitForTimeout(300);
     }
