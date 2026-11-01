@@ -1,0 +1,24 @@
+# Après chaque mise en ligne, ouvre le site publié dans Chrome au format téléphone
+# et vérifie que l’appli s’affiche bien (sans débordement ni erreur).
+name: Test téléphone
+on:
+  workflow_run:
+    workflows: ["pages-build-deployment"]
+    types: [completed]
+  workflow_dispatch:
+jobs:
+  telephone:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save playwright@1.49.1 && npx playwright install --with-deps chromium
+      - run: node tests/histoires.cjs
+      - run: node tests/telephone.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captures-telephone
+          path: captures/
