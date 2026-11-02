@@ -3,7 +3,7 @@
 De courtes histoires lues à voix haute, avec des questions pour chercher les indices cachés dans le texte.
 
 - **Jouer en ligne :** https://lechampdelaurore-boop.github.io/petites-histoires/
-- Fait partie des [applis de Marc](https://lechampdelaurore-boop.github.io/).
+- Fait partie de [Mes applis](https://lechampdelaurore-boop.github.io/), la page qui regroupe toutes les applis.
 
 ## L'appli
 
