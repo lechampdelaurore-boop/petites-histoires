@@ -15,9 +15,9 @@ const URL = process.argv[2] || 'https://lechampdelaurore-boop.github.io/petites-
 const SIZES = [[320, 568], [360, 640], [375, 667], [390, 664], [390, 844], [412, 780], [430, 932]];
 const expectedCache = (fs.readFileSync('sw.js', 'utf8').match(/petites-histoires-v\d+/) || [])[0];
 
-// Progrès et réglages tels que la v1 les enregistrait.
+// Progrès et réglages tels que la v1 les enregistrait (« coffre » n'existe plus en v2 : ignoré sans erreur).
 const V1_PREFS = { autoRead: true, slow: false, sons: true, anims: true };
-const V1_PROG = { stories: { velo: { best: 2, plays: 1, first: '2026-11-01', last: '2026-11-01', res: [{ a: 1, p: 1 }, { a: 2, p: 1 }, { a: 1, p: 2 }], listens: 0 } }, days: ['2026-11-01'] };
+const V1_PROG = { stories: { velo: { best: 2, plays: 1, first: '2026-11-01', last: '2026-11-01', res: [{ a: 1, p: 1 }, { a: 2, p: 1 }, { a: 1, p: 2 }], listens: 0 }, coffre: { best: 3, plays: 2, first: '2026-11-01', last: '2026-11-02', res: [{ a: 1, p: 1 }, { a: 1, p: 1 }, { a: 1, p: 1 }], listens: 1 } }, days: ['2026-11-01', '2026-11-02'] };
 
 (async () => {
   fs.mkdirSync('captures', { recursive: true });
