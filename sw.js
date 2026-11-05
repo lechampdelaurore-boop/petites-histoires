@@ -1,6 +1,6 @@
 // Garde l'appli disponible hors ligne.
 // Changer CACHE à chaque mise à jour des fichiers listés ci-dessous.
-var CACHE = 'petites-histoires-v2';
+var CACHE = 'petites-histoires-v3';
 var FILES = [
   './',
   './index.html',

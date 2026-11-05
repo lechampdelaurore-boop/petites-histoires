@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Petites histoires</title>
-<meta name="description" content="De courtes histoires lues à voix haute, avec des questions pour chercher les indices cachés dans le texte.">
+<meta name="description" content="Des histoires à lire soi-même, de plus en plus longues, avec des questions pour chercher les indices cachés dans le texte.">
 <meta name="appli-marc" content="oui">
 <meta name="theme-color" content="#FFF4FA" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1E1933" media="(prefers-color-scheme: dark)">
@@ -409,6 +409,55 @@ h2 { font-size: 1.4rem; }
   .texte-lecture p { padding: 0 6px; }
 }
 .sans-voix .voix { display: none !important; }
+
+/* Niveaux sur l'accueil */
+.niveau { padding: 14px; }
+.niv-tete { display: flex; align-items: center; gap: 12px; width: 100%; min-height: var(--toucher); padding: 0; background: none; border: 0; color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.niv-num { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: var(--bord) solid var(--line); border-radius: 14px; font: 700 1.3rem var(--display); background: var(--p-menthe); }
+.niv-2 .niv-num { background: var(--p-ciel); }
+.niv-3 .niv-num { background: var(--p-lilas); }
+.niv-4 .niv-num { background: var(--p-peche); }
+.niv-nom { flex: 1; min-width: 0; font: 700 1.15rem/1.2 var(--display); }
+.niv-nom em { font-style: normal; color: var(--muted); font-size: .9rem; }
+.niv-nom small { display: block; font: 700 .85rem var(--body); color: var(--muted); }
+.niv-compte { flex: none; font: 700 1rem var(--display); font-variant-numeric: tabular-nums; }
+.chev { flex: none; font-size: 1.2rem; transition: transform .2s; }
+.niv-tete[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.niveau .etagere { margin-top: 12px; }
+.histoire.double { cursor: default; }
+.histoire.double:active { transform: none; box-shadow: 0 4px 0 var(--line); }
+.ep-btn { display: flex; justify-content: space-between; align-items: center; gap: 6px; width: 100%; min-height: 44px; padding: 4px 10px; border: 2px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); font: 700 .9rem var(--body); cursor: pointer; }
+.ep-btn:active { transform: translateY(2px); }
+.ep-btn .s { font-size: .9rem; letter-spacing: 0; }
+
+/* Avant de lire */
+.intro { text-align: center; align-items: center; }
+.intro-emoji { font-size: 4.5rem; line-height: 1; }
+.intro-q { font: 600 1.3rem/1.3 var(--display); margin: 0; }
+.intro-rappel { margin: 0; font-weight: 700; font-size: 1.1rem; }
+#introText { text-align: left; }
+.page-n { font: 700 1rem var(--display); color: var(--muted); }
+
+/* Type de question, astuce, explication */
+.type-q { margin-top: 6px; vertical-align: middle; }
+.tip-btn { align-self: flex-start; }
+.explication { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 2px solid var(--line); border-radius: 18px; background: var(--p-soleil); }
+.explication.juste { background: var(--tint-good); }
+.explication p { flex: 1; margin: 0; font-weight: 800; font-size: 1.05rem; line-height: 1.35; }
+.explication.faux p::before { content: '🤔 '; }
+.explication.juste p::before { content: '👉 '; }
+.explication .rond { width: 44px; height: 44px; font-size: 18px; }
+
+/* Bilan */
+.raconte { margin: 10px 0 0; font-weight: 700; }
+.monte { text-align: center; }
+.monte p { margin: 0; font: 600 1.2rem/1.3 var(--display); }
+
+/* Carnet */
+.liste { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+#parentLevels h3 { font-size: 1.1rem; }
+#parentLevels h3 small { font: 700 .85rem var(--body); color: var(--muted); }
+
 </style>
 </head>
 <body>
@@ -424,7 +473,7 @@ h2 { font-size: 1.4rem; }
       </div>
       <div class="salut">
         <svg viewBox="0 0 100 100" id="salutArt" aria-hidden="true"></svg>
-        <div class="bulle"><b>Coucou !</b>Écoute l'histoire, puis trouve les indices cachés dedans.</div>
+        <div class="bulle"><b id="salutHello">Coucou !</b>Lis l'histoire, puis trouve les indices cachés dedans.</div>
       </div>
 
       <button class="btn btn-action" type="button" id="todayBtn"></button>
@@ -435,11 +484,8 @@ h2 { font-size: 1.4rem; }
         <p class="hint" id="weekInfo"></p>
       </div>
 
-      <div class="carte">
-        <h2>Toutes les histoires</h2>
-        <div class="etagere" id="shelf"></div>
-        <p class="hint">Une étoile pour chaque question trouvée du premier coup. 🏆 = les trois étoiles.</p>
-      </div>
+      <div class="stack" id="levels"></div>
+      <p class="hint">Une étoile pour chaque question trouvée du premier coup (3 au plus). 🏆 = les trois étoiles. 🔁 = relue quelques jours après.</p>
     </section>
 
     <!-- Réglages -->
@@ -454,9 +500,31 @@ h2 { font-size: 1.4rem; }
         <label class="interrupteur">✨ Animations <input type="checkbox" id="anims"></label>
         <label class="interrupteur voix">🗣️ Lire à voix haute tout seul <input type="checkbox" id="autoRead"></label>
         <label class="interrupteur voix">🐢 Voix plus lente <input type="checkbox" id="slow"></label>
+        <p class="hint voix">Même sans lecture automatique, le bouton 🔊 lit le passage, et toucher une phrase la fait lire.</p>
         <p class="hint" id="voiceInfo"></p>
       </div>
       <div class="centre"><button class="link" type="button" id="parentBtn">Carnet du parent</button></div>
+    </section>
+
+    <!-- Avant de lire -->
+    <section id="intro" class="stack" hidden>
+      <div class="entete">
+        <button class="rond" type="button" data-quit aria-label="Quitter l'histoire">✕</button>
+        <span class="titre">Avant de lire</span>
+        <button class="rond" type="button" data-reglages aria-label="Réglages">⚙</button>
+      </div>
+      <div class="carte intro stack">
+        <div class="intro-emoji" id="introEmoji" aria-hidden="true"></div>
+        <h2 id="introTitle"></h2>
+        <div class="stack" id="introRappel" hidden>
+          <span class="etiquette">Dans l'épisode 1…</span>
+          <p class="intro-rappel" id="introRappelText"></p>
+          <button class="btn btn-petit" type="button" id="introRelire">📖 Relire l'épisode 1</button>
+          <div class="texte-lecture" id="introText" hidden></div>
+        </div>
+        <p class="intro-q" id="introQ"></p>
+      </div>
+      <button class="btn btn-action" type="button" id="introGo"></button>
     </section>
 
     <!-- Lecture -->
@@ -486,10 +554,16 @@ h2 { font-size: 1.4rem; }
         <span class="compte" id="qCount"></span>
       </div>
       <div class="carte question" id="scene">
-        <div><span class="etiquette" id="qTag"></span><p class="q" id="qText"></p></div>
+        <div><span class="etiquette" id="qTag"></span> <span class="pastille soleil type-q" id="qType"></span><p class="q" id="qText"></p></div>
         <button class="rond voix" type="button" id="qListen" aria-label="Écouter la question">🔊</button>
       </div>
+      <p class="astuce" id="tipBox" hidden><span id="tipText"></span></p>
+      <button class="btn btn-petit tip-btn" type="button" id="tipBtn" hidden>💡 Astuce</button>
       <div class="qcm" id="choices"></div>
+      <div class="explication" id="explain" role="status" hidden>
+        <p id="explainText"></p>
+        <button class="rond voix" type="button" id="explainListen" aria-label="Écouter l'explication">🔊</button>
+      </div>
       <p class="astuce consigne" id="prompt" hidden></p>
       <p class="message" id="feedback" role="status" aria-live="polite"></p>
       <button class="btn btn-action" type="button" id="nextQ" hidden>Question suivante →</button>
@@ -514,7 +588,15 @@ h2 { font-size: 1.4rem; }
         <div class="etoiles" id="stars" aria-hidden="true"></div>
         <h2 id="doneTitle"></h2>
         <p class="hint" id="doneText"></p>
+        <p class="raconte" id="retell" hidden>🗣️ Raconte l'histoire à quelqu'un en 3 phrases : le début, le problème, la fin.</p>
         <span class="pastille soleil" id="badge" hidden>🏅 Séance du jour faite !</span>
+      </div>
+      <div class="carte stack monte" id="levelUp" hidden>
+        <p id="levelUpText"></p>
+        <div class="rangee">
+          <button class="btn btn-action" type="button" id="levelYes">Oui !</button>
+          <button class="btn" type="button" id="levelLater">Plus tard</button>
+        </div>
       </div>
       <div class="au-revoir" id="bye" aria-hidden="true"><svg viewBox="0 0 100 100" id="byeArt"></svg><span class="bulle" id="byeSay"></span></div>
       <button class="btn btn-action" type="button" id="backBtn">Retour aux histoires</button>
@@ -528,11 +610,23 @@ h2 { font-size: 1.4rem; }
         <h1 class="titre">Carnet du parent</h1>
         <span style="width:48px"></span>
       </div>
-      <div class="carte">
+      <div class="carte stack">
         <p class="hint">Les résultats restent sur cet appareil. « Du 1er coup » : sans erreur.</p>
-        <p id="parentSum"></p>
-        <div class="defile"><table class="table" id="parentTable"></table></div>
+        <ul class="liste" id="parentSum"></ul>
+        <div class="centre"><button class="btn btn-petit" type="button" id="copyBtn">📋 Copier le résumé</button></div>
+        <p class="hint" id="copyMsg" role="status"></p>
       </div>
+      <div class="carte stack">
+        <h2>Réussite par type de question</h2>
+        <div class="defile"><table class="table" id="parentTypes"></table></div>
+        <p class="hint" id="parentWeak"></p>
+      </div>
+      <div class="carte stack">
+        <h2>Mauvaises réponses choisies</h2>
+        <ul class="liste" id="parentTraps"></ul>
+        <p class="hint">Après chaque erreur, l'appli explique pourquoi la réponse ne va pas, puis montre le passage utile.</p>
+      </div>
+      <div class="carte stack" id="parentLevels"></div>
       <div class="centre"><button class="link" type="button" id="resetBtn">Effacer les progrès</button></div>
     </section>
   </main>
@@ -542,7 +636,6 @@ h2 { font-size: 1.4rem; }
   <div class="bulle" id="bubble" hidden></div>
   <svg viewBox="0 0 100 100" id="buddyArt"></svg>
 </div>
-
 <script>
 (function () {
   'use strict';
@@ -1166,39 +1259,101 @@ h2 { font-size: 1.4rem; }
       '<g fill="none" stroke="#8FD3F4" stroke-width="1.6"><path d="M14 30v10M9 35h10M10.5 31.5l7 7M17.5 31.5l-7 7"/><path d="M86 22v8M82 26h8M83 23l6 6M89 23l-6 6"/></g>']
   ];
 
+  /* ---------- Types de questions, pièges, niveaux ---------- */
+  var TYPES = {
+    'litterale': { label: '📖 C\'est écrit', nom: 'c\'est écrit', astuce: 'La réponse est écrite. Cherche les mots de la question dans l\'histoire.' },
+    'inference-locale': { label: '🔗 Relie les phrases', nom: 'relie les phrases', astuce: 'Qui est « il » ou « elle » ? Regarde la phrase d\'avant.' },
+    'inference-globale': { label: '🕵️ Indice caché', nom: 'indice caché', astuce: 'Ce n\'est pas écrit en entier. Cherche les indices et fais-toi le film.' },
+    'mot': { label: '🔤 Le mot', nom: 'le sens d\'un mot', astuce: 'Pour un mot difficile, lis la phrase d\'avant et celle d\'après.' },
+    'idee-principale': { label: '💡 L\'idée', nom: 'l\'idée principale', astuce: 'Pense à toute l\'histoire, du début à la fin, pas à un détail.' },
+    'structure': { label: '🧩 L\'histoire', nom: 'la structure de l\'histoire', astuce: 'Quel est le problème ? Comment ça se termine ?' }
+  };
+  var PIEGES = {
+    'paraphrase': 'répond avec une phrase du texte qui ne répond pas à la question',
+    'laterale': 'répond avec ce qu\'il sait de la vie plutôt qu\'avec le texte',
+    'personnage-moment': 'mélange qui fait quoi, ou à quel moment',
+    'mot-detourne': 'se laisse prendre par les mots du texte',
+    'fausse': 'a peut-être répondu trop vite'
+  };
+  var NIVEAUX = { 1: '75 à 120 mots', 2: '150 à 250 mots', 3: '250 à 400 mots', 4: '400 à 600 mots, en 2 épisodes' };
+
   /* ---------- Préparation des histoires ---------- */
-  // Chaque phrase reçoit un numéro ; chaque question connaît ses phrases preuves et son paragraphe.
+  // Une histoire sans « episodes » devient un seul épisode. Chaque phrase d'un épisode reçoit
+  // un numéro ; chaque question connaît ses phrases preuves (ids) et leur paragraphe (zone).
+  function prepQ(q, phrases) {
+    if (!q.reponses && q.r) {
+      q.reponses = q.r.map(function (t, i) { return i ? { t: t, juste: false, piege: 'fausse' } : { t: t, juste: true }; });
+    }
+    if (!TYPES[q.type]) q.type = 'inference-globale';
+    q.preuve = q.preuve || [];
+    q.ids = phrases.filter(function (ph) {
+      return q.preuve.some(function (bout) { return ph.t.indexOf(bout) >= 0; });
+    }).map(function (ph) { return ph.i; });
+    q.zone = q.ids.length ? phrases[q.ids[0]].p : null;
+  }
+  var EPISODES = [], byKey = {}, byId = {}, NIVEAUX_PRESENTS = [];
   HISTOIRES.forEach(function (h) {
-    h.phrases = [];
-    h.texte.forEach(function (par, pi) {
-      par.forEach(function (t) { h.phrases.push({ t: t, p: pi, i: h.phrases.length }); });
-    });
-    h.questions.forEach(function (q) {
-      q.ids = h.phrases.filter(function (ph) {
-        return q.preuve.some(function (bout) { return ph.t.indexOf(bout) >= 0; });
-      }).map(function (ph) { return ph.i; });
-      q.zone = q.ids.length ? h.phrases[q.ids[0]].p : 0;
+    h.niveau = h.niveau || 1;
+    h.genre = h.genre || 'recit';
+    byId[h.id] = h;
+    if (NIVEAUX_PRESENTS.indexOf(h.niveau) < 0) NIVEAUX_PRESENTS.push(h.niveau);
+    var src = h.episodes && h.episodes.length ? h.episodes : [{ texte: h.texte, questions: h.questions, revision: h.revision }];
+    h.eps = src.map(function (s, k) {
+      var ep = {
+        h: h, k: k, n: src.length, key: src.length > 1 ? h.id + '#' + (k + 1) : h.id,
+        titre: s.titre || '', rappel: s.rappel || '', texte: s.texte || [],
+        questions: s.questions || [], revision: s.revision || [], phrases: []
+      };
+      ep.texte.forEach(function (par, pi) {
+        par.forEach(function (t) { ep.phrases.push({ t: t, p: pi, i: ep.phrases.length }); });
+      });
+      ep.questions.concat(ep.revision).forEach(function (q) { prepQ(q, ep.phrases); });
+      byKey[ep.key] = ep;
+      EPISODES.push(ep);
+      return ep;
     });
   });
-  var byId = {};
-  HISTOIRES.forEach(function (h) { byId[h.id] = h; });
+  NIVEAUX_PRESENTS.sort();
+  function epNom(ep) { return ep.h.titre + (ep.n > 1 ? ' · épisode ' + (ep.k + 1) : ''); }
+
+  /* ---------- Dates (décalables pour les tests) ---------- */
+  var decalage = 0;
+  function now() { var d = new Date(); d.setDate(d.getDate() + decalage); return d; }
+  function today(d) {
+    d = d || now();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function addDays(s, n) {
+    var p = s.split('-'), d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    d.setDate(d.getDate() + n);
+    return today(d);
+  }
 
   /* ---------- Réglages et progrès (restent dans le navigateur) ---------- */
   var KEY_PREFS = 'marc.histoires.reglages', KEY_PROG = 'marc.histoires.progres';
-  var prefs = Object.assign({ autoRead: true, slow: false, sons: true, anims: true }, store.get(KEY_PREFS, {}));
+  var prefs = Object.assign({ autoRead: false, slow: false, sons: true, anims: true }, store.get(KEY_PREFS, {}));
+  // Version 2 : l'enfant lit seul. L'ancien « autoRead: true » venait de l'ancien défaut.
+  if (prefs.v !== 2) { prefs.autoRead = false; prefs.v = 2; store.set(KEY_PREFS, prefs); }
   function applyCalm() { document.documentElement.classList.toggle('calme', !prefs.anims); }
   applyCalm();
-  var prog = store.get(KEY_PROG, null);
-  if (!prog || typeof prog !== 'object') prog = {};
-  if (!prog.stories || typeof prog.stories !== 'object') prog.stories = {};
-  if (!Array.isArray(prog.days)) prog.days = [];
+  var prog;
+  function loadProg() {
+    prog = store.get(KEY_PROG, null);
+    if (!prog || typeof prog !== 'object') prog = {};
+    if (!prog.stories || typeof prog.stories !== 'object') prog.stories = {};
+    if (!Array.isArray(prog.days)) prog.days = [];
+    if (!prog.niveau || NIVEAUX_PRESENTS.indexOf(prog.niveau) < 0) prog.niveau = NIVEAUX_PRESENTS[0] || 1;
+    prog.propose = prog.propose || 0;
+    if (!prog.stats || typeof prog.stats !== 'object') prog.stats = {};
+    if (!prog.stats.types) prog.stats.types = {};
+    if (!prog.stats.pieges) prog.stats.pieges = {};
+    if (!prog.astuces || typeof prog.astuces !== 'object') prog.astuces = {};
+    if (!prog.voix || typeof prog.voix !== 'object') prog.voix = {};
+  }
+  loadProg();
   function savePrefs() { store.set(KEY_PREFS, prefs); }
   function saveProg() { store.set(KEY_PROG, prog); }
-  function today(d) {
-    d = d || new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-  function entry(id) { return prog.stories[id] || { best: 0, plays: 0 }; }
+  function entry(key) { return prog.stories[key] || { best: 0, plays: 0 }; }
 
   function shuffle(a) {
     for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
@@ -1206,7 +1361,6 @@ h2 { font-size: 1.4rem; }
   }
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
   function reduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-
   /* ---------- Voix ---------- */
   var synth = window.speechSynthesis || null, voice = null, speakingBtn = null, speakId = 0;
   function chooseVoice() {
@@ -1379,7 +1533,7 @@ h2 { font-size: 1.4rem; }
   var CHEERS = ['Bien vu !', 'Super !', 'Trouvé !', 'Bravo !', 'Quel détective !'];
 
   /* ---------- Écrans ---------- */
-  var views = { home: $('#home'), settings: $('#settings'), read: $('#read'), quiz: $('#quiz'), done: $('#done'), parent: $('#parent') };
+  var views = { home: $('#home'), settings: $('#settings'), intro: $('#intro'), read: $('#read'), quiz: $('#quiz'), done: $('#done'), parent: $('#parent') };
   var current = 'home', before = 'home';
   function show(name) {
     Object.keys(views).forEach(function (k) { views[k].hidden = (k !== name); });
@@ -1387,27 +1541,64 @@ h2 { font-size: 1.4rem; }
     hideCreature();
     window.scrollTo(0, 0);
   }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-  function nextStory() {
-    var fresh = HISTOIRES.filter(function (h) { return !entry(h.id).plays; });
-    if (fresh.length) return fresh[0];
-    return HISTOIRES.slice().sort(function (a, b) {
-      var ea = entry(a.id), eb = entry(b.id);
-      return (ea.best - eb.best) || String(ea.last || '').localeCompare(String(eb.last || ''));
-    })[0];
+  // Chaque usage de la voix est compté pour le carnet du parent.
+  function countVoice() {
+    if (cur) cur.listens++;
+    var d = today();
+    prog.voix[d] = (prog.voix[d] || 0) + 1;
+    saveProg();
   }
 
+  /* ---------- Séance du jour ---------- */
+  function dueRevisions() {
+    var t = today();
+    return EPISODES.filter(function (ep) {
+      var e = prog.stories[ep.key];
+      return e && e.revoir && !e.revu && e.revoir <= t && ep.revision.length;
+    }).sort(function (a, b) { return prog.stories[a.key].revoir.localeCompare(prog.stories[b.key].revoir); });
+  }
+  function nextEpisode(not) {
+    var list = EPISODES.filter(function (ep) { return ep.h.niveau === prog.niveau && ep !== not; });
+    if (!list.length) list = EPISODES.filter(function (ep) { return ep !== not; });
+    var fresh = list.filter(function (ep) { return !entry(ep.key).plays; });
+    if (fresh.length) return fresh[0];
+    return list.slice().sort(function (a, b) {
+      var ea = entry(a.key), eb = entry(b.key);
+      return (ea.best - eb.best) || String(ea.last || '').localeCompare(String(eb.last || '')) || (list.indexOf(a) - list.indexOf(b));
+    })[0];
+  }
+  function todayPlan() {
+    var r = dueRevisions()[0];
+    return r ? { ep: r, mode: 'relecture' } : { ep: nextEpisode(), mode: 'lecture' };
+  }
+
+  /* ---------- Accueil ---------- */
+  var ouverts = {};
+  function starsHtml(n) {
+    var s = '';
+    for (var i = 0; i < 3; i++) s += '<span class="' + (i < n ? 'on' : '') + '">★</span>';
+    return s;
+  }
+  function storyRead(h) { return h.eps.every(function (ep) { return entry(ep.key).plays; }); }
+  function trophy(h) { return h.eps.every(function (ep) { return entry(ep.key).best === 3; }); }
+
   function renderHome() {
-    var next = nextStory();
-    $('#todayBtn').innerHTML = '<span></span><small>Environ 8 minutes, sans se presser</small>';
-    $('#todayBtn').firstChild.textContent = 'Histoire du jour : ' + next.emoji + ' ' + next.titre;
-    $('#salutArt').innerHTML = creatureSvg(CREATURES[(new Date().getDate()) % CREATURES.length]);
-    $('#todayBtn').dataset.id = next.id;
+    var plan = todayPlan(), ep = plan.ep;
+    var profil = store.get('marc.profil', null);
+    var prenom = profil && typeof profil.prenom === 'string' ? profil.prenom.trim() : '';
+    $('#salutHello').textContent = 'Coucou' + (prenom ? ' ' + prenom : '') + ' !';
+    $('#salutArt').innerHTML = creatureSvg(CREATURES[now().getDate() % CREATURES.length]);
+    $('#todayBtn').innerHTML = '<span>Ma séance du jour</span><small></small>';
+    $('#todayBtn').querySelector('small').textContent = plan.mode === 'relecture'
+      ? '🔁 Tu te souviens de « ' + epNom(ep) + '\u00a0»\u00a0?'
+      : ep.h.emoji + ' ' + epNom(ep);
 
     var week = $('#week'), labels = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     week.innerHTML = '';
     for (var k = 6; k >= 0; k--) {
-      var d = new Date();
+      var d = now();
       d.setDate(d.getDate() - k);
       var on = prog.days.indexOf(today(d)) >= 0;
       var cell = document.createElement('div');
@@ -1419,20 +1610,54 @@ h2 { font-size: 1.4rem; }
     var n = prog.days.length;
     $('#weekInfo').textContent = n ? n + (n > 1 ? ' séances' : ' séance') + ' en tout. ' + (prog.days.indexOf(today()) >= 0 ? 'Celle d\'aujourd\'hui est faite !' : '') : 'Une histoire par jour suffit.';
 
-    var shelf = $('#shelf');
-    shelf.innerHTML = '';
-    HISTOIRES.forEach(function (h) {
-      var e = entry(h.id), b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'histoire' + (h === next ? ' suivante' : '');
-      var s = '';
-      for (var i = 0; i < 3; i++) s += '<span class="' + (i < e.best ? 'on' : '') + '">★</span>';
-      b.innerHTML = '<span class="e" aria-hidden="true"></span><span class="t"></span><span class="s">' + s + (e.best === 3 ? ' 🏆' : '') + '</span>';
-      b.querySelector('.e').textContent = h.emoji;
-      b.querySelector('.t').textContent = h.titre;
-      b.setAttribute('aria-label', h.titre + ', ' + e.best + ' étoile' + (e.best > 1 ? 's' : '') + ' sur 3');
-      b.addEventListener('click', function () { startStory(h); });
-      shelf.appendChild(b);
+    var levels = $('#levels');
+    levels.innerHTML = '';
+    NIVEAUX_PRESENTS.forEach(function (niv) {
+      var list = HISTOIRES.filter(function (h) { return h.niveau === niv; });
+      var open = ouverts[niv] != null ? ouverts[niv] : niv === prog.niveau;
+      var card = document.createElement('div');
+      card.className = 'carte niveau niv-' + niv;
+      card.dataset.niveau = niv;
+      var lues = list.filter(storyRead).length;
+      card.innerHTML = '<button type="button" class="niv-tete" aria-expanded="' + open + '">' +
+        '<span class="niv-num" aria-hidden="true">' + niv + '</span>' +
+        '<span class="niv-nom">Niveau ' + niv + (niv === prog.niveau ? ' <em>· mon niveau</em>' : '') + '<small>' + NIVEAUX[niv] + '</small></span>' +
+        '<span class="niv-compte">' + lues + '/' + list.length + '</span><span class="chev" aria-hidden="true">▾</span></button>' +
+        '<div class="etagere"' + (open ? '' : ' hidden') + '></div>';
+      card.querySelector('.niv-tete').addEventListener('click', function () {
+        ouverts[niv] = !open;
+        renderHome();
+      });
+      var shelf = card.querySelector('.etagere');
+      list.forEach(function (h) {
+        var tile;
+        if (h.eps.length === 1) {
+          var e = entry(h.id);
+          tile = document.createElement('button');
+          tile.type = 'button';
+          tile.className = 'histoire' + (h.eps[0] === ep ? ' suivante' : '');
+          tile.innerHTML = '<span class="e" aria-hidden="true"></span><span class="t"></span><span class="s">' + starsHtml(e.best) + (e.best === 3 ? ' 🏆' : '') + (e.revu ? ' 🔁' : '') + '</span>';
+          tile.setAttribute('aria-label', h.titre + ', ' + e.best + ' étoile' + (e.best > 1 ? 's' : '') + ' sur 3');
+          tile.addEventListener('click', function () { start(h.eps[0], 'lecture'); });
+        } else {
+          tile = document.createElement('div');
+          tile.className = 'histoire double' + (h.eps.indexOf(ep) >= 0 ? ' suivante' : '');
+          tile.innerHTML = '<span class="e" aria-hidden="true"></span><span class="t"></span>' + (trophy(h) ? '<span class="s">🏆</span>' : '');
+          h.eps.forEach(function (x) {
+            var ex = entry(x.key), b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'ep-btn';
+            b.innerHTML = '<span>Épisode ' + (x.k + 1) + '</span><span class="s">' + starsHtml(ex.best) + (ex.revu ? ' 🔁' : '') + '</span>';
+            b.setAttribute('aria-label', h.titre + ', épisode ' + (x.k + 1) + ', ' + ex.best + ' étoile' + (ex.best > 1 ? 's' : '') + ' sur 3');
+            b.addEventListener('click', function () { start(x, 'lecture'); });
+            tile.appendChild(b);
+          });
+        }
+        tile.querySelector('.e').textContent = h.emoji;
+        tile.querySelector('.t').textContent = h.titre;
+        shelf.appendChild(tile);
+      });
+      levels.appendChild(card);
     });
 
     $('#autoRead').checked = prefs.autoRead;
@@ -1442,14 +1667,14 @@ h2 { font-size: 1.4rem; }
     if (!synth) $('#voiceInfo').textContent = 'Cet appareil ne sait pas lire à voix haute.';
   }
 
-  // Texte en phrases à toucher. only : numéro de paragraphe à afficher seul (lecture page par page).
-  function renderText(box, h, page) {
+  // Texte en phrases à toucher. page : { p, ids } pour n'afficher qu'un morceau d'un paragraphe.
+  function renderText(box, ep, page) {
     box.innerHTML = '';
-    h.texte.forEach(function (par, pi) {
+    ep.texte.forEach(function (par, pi) {
       if (page && pi !== page.p) return;
       var p = document.createElement('p');
       p.dataset.p = pi;
-      h.phrases.forEach(function (ph) {
+      ep.phrases.forEach(function (ph) {
         if (ph.p !== pi || (page && page.ids.indexOf(ph.i) < 0)) return;
         var s = document.createElement('span');
         s.className = 'ph';
@@ -1464,20 +1689,20 @@ h2 { font-size: 1.4rem; }
 
   /* ---------- Séance ---------- */
   var cur = null;
-  function steps() { return cur.h.pages.length + cur.h.questions.length; }
+  function steps() { return cur.pages.length + cur.qs.length; }
   function setMeter(done) { $$('.bar').forEach(function (b) { b.style.width = Math.round(done / steps() * 100) + '%'; }); }
 
   // Lecture page par page : 4 lignes au plus par écran (mesurées sur l'écran de l'appareil),
   // sans couper une phrase ni mélanger deux paragraphes.
-  function paginate(h) {
+  function paginate(ep) {
     var box = $('#readText'), pages = [];
     var line = parseFloat(getComputedStyle(box).lineHeight) || 44;
-    h.texte.forEach(function (par, pi) {
+    ep.texte.forEach(function (par, pi) {
       var page = null;
-      h.phrases.forEach(function (ph) {
+      ep.phrases.forEach(function (ph) {
         if (ph.p !== pi) return;
         if (page) {
-          renderText(box, h, { p: pi, ids: page.ids.concat(ph.i) });
+          renderText(box, ep, { p: pi, ids: page.ids.concat(ph.i) });
           if (box.getBoundingClientRect().height > line * 4 + 2) page = null;
         }
         if (!page) { page = { p: pi, ids: [] }; pages.push(page); }
@@ -1486,135 +1711,209 @@ h2 { font-size: 1.4rem; }
     });
     return pages;
   }
-  function startStory(h) {
+
+  // mode : 'lecture' (questions principales, étoiles) ou 'relecture' (2 questions de revision, J+2).
+  function start(ep, mode) {
     stopSpeak();
-    cur = { h: h, page: 0, qi: 0, results: [], listens: 0 };
+    if (mode === 'relecture' && !ep.revision.length) mode = 'lecture';
+    cur = { ep: ep, mode: mode, qs: mode === 'relecture' ? ep.revision : ep.questions, page: 0, qi: 0, results: [], listens: 0, pages: [] };
+    if (mode === 'lecture' && !entry(ep.key).plays) showIntro();
+    else startReading();
+  }
+  function showIntro() {
+    var ep = cur.ep, h = ep.h;
+    show('intro');
+    $('#introEmoji').textContent = h.emoji;
+    $('#introTitle').textContent = epNom(ep);
+    var suite = ep.k > 0;
+    $('#introRappel').hidden = !(suite && ep.rappel);
+    $('#introRappelText').textContent = ep.rappel;
+    $('#introText').hidden = true;
+    $('#introRelire').hidden = false;
+    $('#introQ').textContent = suite ? 'D\'après toi, que va-t-il se passer\u00a0?'
+      : h.genre === 'documentaire' ? 'Qu\'est-ce que tu sais déjà sur ' + (h.sujet || 'ce sujet') + '\u00a0?'
+      : 'D\'après toi, de quoi va parler cette histoire\u00a0?';
+    $('#introGo').textContent = suite ? 'Je lis la suite !' : 'J\'ai une idée, je lis !';
+    if (prefs.autoRead) speak([{ text: $('#introQ').textContent }]);
+  }
+  $('#introRelire').addEventListener('click', function () {
+    var prev = cur.ep.h.eps[cur.ep.k - 1];
+    if (!prev) return;
+    renderText($('#introText'), prev);
+    $('#introText').hidden = false;
+    this.hidden = true;
+  });
+  $('#introText').addEventListener('click', function (e) {
+    var el = e.target.closest('.ph');
+    if (el) { countVoice(); speak([{ text: el.textContent, el: el }]); }
+  });
+  $('#introGo').addEventListener('click', startReading);
+  function startReading() {
+    stopSpeak();
     show('read');
-    h.pages = paginate(h);
+    cur.pages = paginate(cur.ep);
+    cur.page = 0;
     showPage();
   }
   function showPage() {
-    var h = cur.h, n = h.pages.length;
-    $('#readTitle').textContent = h.emoji + ' ' + h.titre;
-    renderText($('#readText'), h, h.pages[cur.page]);
-    $('#dots').innerHTML = h.pages.map(function (_, i) { return '<i class="' + (i === cur.page ? 'on' : '') + '"></i>'; }).join('');
+    var ep = cur.ep, n = cur.pages.length;
+    $('#readTitle').textContent = ep.h.emoji + ' ' + epNom(ep) + (cur.mode === 'relecture' ? ' 🔁' : '');
+    renderText($('#readText'), ep, cur.pages[cur.page]);
+    $('#dots').innerHTML = n > 10
+      ? '<span class="page-n">' + (cur.page + 1) + ' / ' + n + '</span>'
+      : cur.pages.map(function (_, i) { return '<i class="' + (i === cur.page ? 'on' : '') + '"></i>'; }).join('');
     $('#prevPage').disabled = cur.page === 0;
     $('#nextPage').textContent = cur.page === n - 1 ? 'Aux questions →' : 'Suite →';
     setMeter(cur.page);
     if (prefs.autoRead) speak(itemsOf($('#readText')), $('#readListen'));
   }
-  $('#readListen').addEventListener('click', function () { cur.listens++; toggleSpeak(this, itemsOf($('#readText'))); });
+  $('#readListen').addEventListener('click', function () {
+    if (speakingBtn !== this) countVoice();
+    toggleSpeak(this, itemsOf($('#readText')));
+  });
   $('#readText').addEventListener('click', function (e) {
     var el = e.target.closest('.ph');
-    if (el) { cur.listens++; speak([{ text: el.textContent, el: el }]); }
+    if (el) { countVoice(); speak([{ text: el.textContent, el: el }]); }
   });
   $('#prevPage').addEventListener('click', function () { if (cur.page > 0) { cur.page--; showPage(); } });
   $('#nextPage').addEventListener('click', function () {
-    if (cur.page < cur.h.pages.length - 1) { cur.page++; showPage(); window.scrollTo(0, 0); return; }
+    if (cur.page < cur.pages.length - 1) { cur.page++; showPage(); window.scrollTo(0, 0); return; }
     stopSpeak();
     show('quiz');
     showQuestion();
   });
 
+  /* ---------- Questions ---------- */
+  function goodOf(q) { return q.reponses.filter(function (r) { return r.juste; })[0]; }
+  function showTip(type) {
+    $('#tipText').textContent = TYPES[type].astuce;
+    $('#tipBox').hidden = false;
+    $('#tipBtn').hidden = true;
+  }
+  function showExplain(text, kind) {
+    $('#explainText').textContent = text;
+    $('#explain').className = 'explication ' + kind;
+    $('#explain').hidden = !text;
+    if (text && prefs.autoRead) speak([{ text: text }], $('#explainListen'));
+  }
   function showQuestion() {
-    var h = cur.h, q = h.questions[cur.qi];
+    var ep = cur.ep, q = cur.qs[cur.qi];
+    cur.q = q;
     cur.phase = 'answer';
     cur.aTries = 0;
     cur.pTries = 0;
-    $('#qTag').textContent = 'Question ' + (cur.qi + 1) + ' sur ' + h.questions.length;
-    $('#qCount').textContent = (cur.qi + 1) + ' / ' + h.questions.length;
+    $('#qTag').textContent = (cur.mode === 'relecture' ? 'Relecture · ' : '') + 'Question ' + (cur.qi + 1) + ' sur ' + cur.qs.length;
+    $('#qType').textContent = TYPES[q.type].label;
+    $('#qCount').textContent = (cur.qi + 1) + ' / ' + cur.qs.length;
     $('#qText').textContent = q.q;
-    setMeter(h.pages.length + cur.qi);
+    setMeter(cur.pages.length + cur.qi);
+    // Astuce du type : affichée les 2 premières fois, ensuite derrière le bouton 💡.
+    var vues = prog.astuces[q.type] || 0;
+    $('#tipBox').hidden = true;
+    $('#tipBtn').hidden = false;
+    if (vues < 2) { prog.astuces[q.type] = vues + 1; saveProg(); showTip(q.type); }
     var box = $('#choices');
     box.innerHTML = '';
-    shuffle(q.r.map(function (t, i) { return { t: t, ok: i === 0 }; })).forEach(function (c, k) {
-      var b = document.createElement('button');
+    shuffle(q.reponses.map(function (r, i) { return i; })).forEach(function (i, k) {
+      var r = q.reponses[i], b = document.createElement('button');
       b.type = 'button';
       b.className = 'choix';
       b.innerHTML = '<span class="lettre" aria-hidden="true">' + 'ABCDEF'[k] + '</span><span class="rep"></span>';
-      b.querySelector('.rep').textContent = c.t;
-      b.dataset.ok = c.ok ? '1' : '';
+      b.querySelector('.rep').textContent = r.t;
+      b.dataset.k = i;
+      b.dataset.ok = r.juste ? '1' : '';
       b.addEventListener('click', function () { answer(b); });
       box.appendChild(b);
     });
+    $('#explain').hidden = true;
     $('#prompt').hidden = true;
     $('#nextQ').hidden = true;
     $('#feedback').textContent = '';
     $('#feedback').className = 'message';
     $('#scene').classList.remove('reussie', 'a-retenter');
-    renderText($('#storyText'), h);
+    renderText($('#storyText'), ep);
     $('#storyText').classList.remove('cherche');
     $('#storyText').hidden = true;
     $('#storyToggle').hidden = false;
     $('#storyLabel').hidden = true;
-    $('#storyToggle').textContent = '📖 Revoir l\'histoire';
     if (prefs.autoRead) readQuestion();
   }
+  $('#tipBtn').addEventListener('click', function () { showTip(cur.q.type); });
   function readQuestion() {
     var items = [{ text: $('#qText').textContent }];
-    $$('#choices .choix:not(:disabled) .rep').forEach(function (b) { items.push({ text: b.textContent }); });
+    $$('#choices .choix:not(:disabled):not([hidden]) .rep').forEach(function (b) { items.push({ text: b.textContent }); });
     speak(items, $('#qListen'));
   }
   $('#qListen').addEventListener('click', function () {
-    if (cur.phase === 'proof') toggleSpeak(this, [{ text: $('#qText').textContent }, { text: $('#prompt').textContent }]);
-    else if (speakingBtn === this) stopSpeak();
+    if (speakingBtn === this) { stopSpeak(); return; }
+    countVoice();
+    if (cur.phase === 'proof') speak([{ text: $('#qText').textContent }, { text: $('#prompt').textContent }], this);
     else readQuestion();
+  });
+  $('#explainListen').addEventListener('click', function () {
+    if (speakingBtn !== this) countVoice();
+    toggleSpeak(this, [{ text: $('#explainText').textContent }]);
   });
   function openStory(zone) {
     $('#storyText').hidden = false;
     $('#storyToggle').hidden = true;
     $('#storyLabel').hidden = false;
-    if (zone != null) {
-      $$('#storyText p').forEach(function (p) { p.classList.toggle('zone', Number(p.dataset.p) === zone); });
-      var z = $('#storyText p.zone');
-      if (z && z.scrollIntoView) z.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' });
-    }
+    $$('#storyText p').forEach(function (p) { p.classList.toggle('zone', zone != null && Number(p.dataset.p) === zone); });
+    var z = $('#storyText p.zone');
+    if (z && z.scrollIntoView) z.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' });
   }
   $('#storyToggle').addEventListener('click', function () { openStory(); });
   $('#storyListen').addEventListener('click', function () {
-    cur.listens++;
-    openStory();
+    if (speakingBtn !== this) countVoice();
+    if ($('#storyText').hidden) openStory();
     toggleSpeak(this, itemsOf($('#storyText')));
   });
 
   function answer(b) {
     if (cur.phase !== 'answer' || b.disabled) return;
-    var q = cur.h.questions[cur.qi];
+    var q = cur.q, rep = q.reponses[Number(b.dataset.k)];
     cur.aTries++;
-    if (!b.dataset.ok) {
+    if (!rep.juste) {
+      var pg = PIEGES[rep.piege] ? rep.piege : 'fausse';
+      prog.stats.pieges[pg] = (prog.stats.pieges[pg] || 0) + 1;
+      saveProg();
       b.disabled = true;
       b.classList.add('a-revoir');
       oops();
+      stopSpeak();
+      showExplain(rep.explication || 'Ce n\'est pas tout à fait ça.', 'faux');
       $('#feedback').className = 'message astuce';
-      $('#feedback').textContent = 'Presque ! La réponse est dans le passage en jaune.';
+      $('#feedback').textContent = q.zone != null ? 'Relis le passage en jaune, puis choisis une autre réponse.' : 'Relis l\'histoire, puis choisis une autre réponse.';
       openStory(q.zone);
-      if (prefs.autoRead) speak([{ text: 'Pas tout à fait. Relis le passage en jaune.' }]);
       return;
     }
     stopSpeak();
     b.classList.add('bon');
     $$('#choices .choix').forEach(function (c) { if (c !== b) c.hidden = true; });
+    $('#explain').hidden = true;
     sound('ok');
     sparkle(b);
     replay(b, 'anim-bravo');
-    cur.phase = 'proof';
     $('#feedback').textContent = '';
     $('#feedback').className = 'message';
+    // « L'idée » n'a pas de phrase à prouver : la question est réussie tout de suite.
+    if (!q.ids.length) { success(null); return; }
+    cur.phase = 'proof';
     $('#prompt').hidden = false;
     $('#prompt').textContent = 'Oui ! Maintenant, touche la phrase de l\'histoire qui le prouve.';
     openStory();
     $('#storyText').classList.add('cherche');
     if ($('#prompt').scrollIntoView) $('#prompt').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
-    if (prefs.autoRead) speak([{ text: 'Oui ! Maintenant, touche la phrase de l\'histoire qui le prouve.' }]);
+    if (prefs.autoRead) speak([{ text: $('#prompt').textContent }]);
   }
 
   $('#storyText').addEventListener('click', function (e) {
     var el = e.target.closest('.ph');
     if (!el) return;
-    if (cur.phase !== 'proof') { cur.listens++; speak([{ text: el.textContent, el: el }]); return; }
-    var q = cur.h.questions[cur.qi], i = Number(el.dataset.i);
+    if (cur.phase !== 'proof') { countVoice(); speak([{ text: el.textContent, el: el }]); return; }
+    var q = cur.q, i = Number(el.dataset.i);
     cur.pTries++;
-    if (q.ids.indexOf(i) >= 0) { proofFound(el); return; }
+    if (q.ids.indexOf(i) >= 0) { success(el); return; }
     el.classList.add('pas-ici');
     setTimeout(function () { el.classList.remove('pas-ici'); }, 1200);
     oops();
@@ -1630,66 +1929,134 @@ h2 { font-size: 1.4rem; }
     }
   });
 
-  function proofFound(el) {
+  // Question réussie (el : la phrase preuve touchée, ou null pour « L'idée »).
+  function success(el) {
     stopSpeak();
+    var q = cur.q;
     cur.phase = 'next';
     $$('#storyText .brille').forEach(function (s) { s.classList.remove('brille'); });
-    el.classList.add('trouvee');
     $('#storyText').classList.remove('cherche');
     $('#prompt').hidden = true;
     var fb = $('#feedback');
     fb.className = 'message';
-    fb.textContent = '⭐ ' + pick(CHEERS) + ' C\'est écrit là.';
+    if (el) {
+      el.classList.add('trouvee');
+      fb.textContent = '⭐ ' + pick(CHEERS) + ' C\'est écrit là.';
+    } else {
+      fb.textContent = '⭐ ' + pick(CHEERS);
+    }
+    // Après une erreur sur cette question : pourquoi la bonne réponse est juste.
+    var good = goodOf(q);
+    if (cur.aTries > 1 && good && good.explication) showExplain(good.explication, 'juste');
     $('#scene').classList.remove('a-retenter');
     $('#scene').classList.add('reussie');
     replay($('#scene'), 'anim-bravo');
     sound('ok');
-    sparkle(el);
-    showCreature(cur.aTries === 1 && cur.pTries === 1 ? pick(CHEERS) : '');
-    cur.results.push({ a: cur.aTries, p: cur.pTries });
-    setMeter(cur.h.pages.length + cur.qi + 1);
-    var last = cur.qi === cur.h.questions.length - 1;
-    $('#nextQ').textContent = last ? 'Voir mes étoiles ★' : 'Question suivante →';
+    sparkle(el || $('#scene'));
+    showCreature(cur.aTries === 1 && cur.pTries <= 1 ? pick(CHEERS) : '');
+    cur.results.push({ a: cur.aTries, p: el ? cur.pTries : 0, t: q.type });
+    var st = prog.stats.types[q.type] || { vus: 0, ok: 0 };
+    st.vus++;
+    if (cur.aTries === 1) st.ok++;
+    prog.stats.types[q.type] = st;
+    saveProg();
+    setMeter(cur.pages.length + cur.qi + 1);
+    var last = cur.qi === cur.qs.length - 1;
+    $('#nextQ').textContent = last ? (cur.mode === 'relecture' ? 'Fini ! 🔁' : 'Voir mes étoiles ★') : 'Question suivante →';
     $('#nextQ').hidden = false;
     // Garde la bonne phrase visible, et le bouton à portée de pouce.
     setTimeout(function () { if ($('#nextQ').scrollIntoView) $('#nextQ').scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'nearest' }); }, 250);
   }
   $('#nextQ').addEventListener('click', function () {
     stopSpeak();
-    if (cur.qi < cur.h.questions.length - 1) { cur.qi++; showQuestion(); window.scrollTo(0, 0); return; }
+    if (cur.qi < cur.qs.length - 1) { cur.qi++; showQuestion(); window.scrollTo(0, 0); return; }
     finish();
   });
 
+  /* ---------- Fin d'histoire ---------- */
+  var proposal = 0;
   function finish() {
-    var h = cur.h, n = cur.results.filter(function (r) { return r.a === 1; }).length;
-    var e = entry(h.id), d = today(), firstToday = prog.days.indexOf(d) < 0;
-    e.best = Math.max(e.best || 0, n);
-    e.plays = (e.plays || 0) + 1;
-    e.first = e.first || d;
-    e.last = d;
-    e.res = cur.results;
-    e.listens = cur.listens;
-    prog.stories[h.id] = e;
+    var ep = cur.ep, h = ep.h, d = today(), firstToday = prog.days.indexOf(d) < 0;
+    var e = entry(ep.key), ok = cur.results.filter(function (r) { return r.a === 1; }).length;
+    var n = Math.max(0, 3 - (cur.results.length - ok));
+    e.listens = (e.listens || 0) + cur.listens;
+    proposal = 0;
+    if (cur.mode === 'relecture') {
+      e.revu = { d: d, ok: ok, sur: cur.results.length, res: cur.results };
+    } else {
+      e.best = Math.max(e.best || 0, n);
+      e.plays = (e.plays || 0) + 1;
+      e.first = e.first || d;
+      e.last = d;
+      e.res = cur.results;
+      if (!e.revoir && !e.revu && ep.revision.length) e.revoir = addDays(d, 2);
+      // Niveau : 2 réussites (2 étoiles ou plus) au niveau actuel font proposer le suivant.
+      // Le niveau ne change que si l'enfant dit « Oui ! » ; on ne redescend jamais tout seul.
+      if (h.niveau === prog.niveau && n >= 2) prog.propose = (prog.propose || 0) + 1;
+      var up = NIVEAUX_PRESENTS.filter(function (x) { return x > prog.niveau; })[0];
+      if (up && prog.propose >= 2) proposal = up;
+    }
+    prog.stories[ep.key] = e;
     if (firstToday) prog.days.push(d);
     saveProg();
 
     show('done');
+    var relu = cur.mode === 'relecture';
+    $('#stars').hidden = relu;
     $('#stars').innerHTML = [0, 1, 2].map(function (i) { return '<span class="' + (i < n ? 'on' : '') + '">★</span>'; }).join('');
-    $('#doneTitle').textContent = n === 3 ? 'Trois étoiles !' : 'Histoire terminée !';
-    $('#doneText').textContent = n === 3
-      ? 'Tu as tout trouvé du premier coup. ' + (e.best === 3 ? 'Un trophée 🏆 pour « ' + h.titre + ' » !' : '')
-      : 'Tu as trouvé toutes les réponses et toutes les preuves. ' + (n ? n + (n > 1 ? ' étoiles' : ' étoile') + ' gagnée' + (n > 1 ? 's' : '') + ' du premier coup.' : 'Tu peux la relire un autre jour pour gagner des étoiles.');
+    if (relu) {
+      $('#doneTitle').textContent = 'Relecture finie ! 🔁';
+      $('#doneText').textContent = 'Tu te souvenais bien de « ' + epNom(ep) + ' » : ' + ok + ' réponse' + (ok > 1 ? 's' : '') + ' sur ' + cur.results.length + ' du premier coup.';
+    } else {
+      $('#doneTitle').textContent = n === 3 ? 'Trois étoiles !' : (ep.n > 1 ? 'Épisode terminé !' : 'Histoire terminée !');
+      $('#doneText').textContent = ok === cur.results.length
+        ? 'Tu as tout trouvé du premier coup. ' + (trophy(h) ? 'Un trophée 🏆 pour « ' + h.titre + ' » !' : '')
+        : 'Tu as trouvé toutes les réponses. ' + (n ? n + (n > 1 ? ' étoiles' : ' étoile') + ' gagnée' + (n > 1 ? 's' : '') + '.' : 'Tu peux la relire un autre jour pour gagner des étoiles.');
+    }
+    var raconte = !relu && h.genre === 'recit' && ep.k === ep.n - 1;
+    $('#retell').hidden = !raconte;
     $('#badge').hidden = !firstToday;
+    $('#levelUp').hidden = !proposal;
+    if (proposal) $('#levelUpText').textContent = 'Tu veux essayer le niveau ' + proposal + '\u00a0? Les histoires sont un peu plus longues.';
+    $('#backBtn').textContent = relu ? 'Mon histoire du jour →' : 'Retour aux histoires';
+    $('#againBtn').textContent = relu ? 'Retour aux histoires' : (ep.k < ep.n - 1 ? 'Lire l\'épisode ' + (ep.k + 2) + ' →' : 'Encore une histoire');
+    $('#backBtn').classList.toggle('btn-action', !proposal);
     replay($('#doneCard'), 'anim-bravo');
     $('#byeArt').innerHTML = creatureSvg(nextCreature());
     $('#byeSay').textContent = firstToday ? 'À demain !' : 'Bravo !';
     sound('win');
-    if (n === 3) confetti();
+    if (n === 3 && !relu) confetti();
   }
-  $('#againBtn').addEventListener('click', function () { var nx = nextStory(); startStory(nx === cur.h ? HISTOIRES[(HISTOIRES.indexOf(nx) + 1) % HISTOIRES.length] : nx); });
-  $('#backBtn').addEventListener('click', function () { renderHome(); show('home'); });
+  $('#levelYes').addEventListener('click', function () {
+    prog.niveau = proposal;
+    prog.propose = 0;
+    saveProg();
+    ouverts = {};
+    renderHome();
+    show('home');
+    var c = $('.niveau[data-niveau="' + prog.niveau + '"]');
+    if (c && c.scrollIntoView) c.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
+  });
+  $('#levelLater').addEventListener('click', function () {
+    prog.propose = 0;
+    proposal = 0;
+    saveProg();
+    $('#levelUp').hidden = true;
+    $('#backBtn').classList.add('btn-action');
+  });
+  $('#againBtn').addEventListener('click', function () {
+    if (cur.mode === 'relecture') { renderHome(); show('home'); return; }
+    var ep = cur.ep;
+    if (ep.k < ep.n - 1) { start(ep.h.eps[ep.k + 1], 'lecture'); return; }
+    start(nextEpisode(ep), 'lecture');
+  });
+  $('#backBtn').addEventListener('click', function () {
+    if (cur && cur.mode === 'relecture') { var p = todayPlan(); start(p.ep, p.mode); return; }
+    renderHome();
+    show('home');
+  });
   $$('[data-quit]').forEach(function (b) { b.addEventListener('click', function () { stopSpeak(); renderHome(); show('home'); }); });
-  $('#todayBtn').addEventListener('click', function () { startStory(byId[this.dataset.id]); });
+  $('#todayBtn').addEventListener('click', function () { var p = todayPlan(); start(p.ep, p.mode); });
 
   /* ---------- Réglages ---------- */
   $('#autoRead').addEventListener('change', function () { prefs.autoRead = this.checked; savePrefs(); });
@@ -1709,27 +2076,115 @@ h2 { font-size: 1.4rem; }
 
   /* ---------- Carnet du parent ---------- */
   function fmt(d) { return d ? d.split('-').reverse().slice(0, 2).join('/') : ''; }
-  function renderParent() {
-    var days = prog.days.slice().sort();
-    $('#parentSum').textContent = days.length
-      ? 'Séances faites : ' + days.length + ' jour' + (days.length > 1 ? 's' : '') + ' (du ' + fmt(days[0]) + ' au ' + fmt(days[days.length - 1]) + ').'
-      : 'Aucune séance pour l\'instant.';
-    var rows = '<tr><th>Histoire</th><th>Lue</th><th>Meilleur</th><th>Dernière fois : réponse / preuve du 1er coup</th></tr>';
-    HISTOIRES.forEach(function (h) {
-      var e = entry(h.id), res = e.res || [];
-      var a = res.filter(function (r) { return r.a === 1; }).length, p = res.filter(function (r) { return r.p === 1; }).length;
-      rows += '<tr><td>' + h.emoji + ' ' + h.titre + '</td><td class="n">' + (e.plays ? e.plays + ' fois' : '–') + '</td><td class="n">' + (e.plays ? e.best + ' ★' : '–') + '</td><td>' +
-        (e.plays ? a + '/3 réponses, ' + p + '/3 preuves (le ' + fmt(e.last) + ')' : '') + '</td></tr>';
+  function parentData() {
+    var days = prog.days.slice().sort(), t = today(), from = addDays(t, -13), voix = 0;
+    Object.keys(prog.voix).forEach(function (d) { if (d >= from && d <= t) voix += prog.voix[d]; });
+    var faites = 0, aFaire = 0;
+    EPISODES.forEach(function (ep) {
+      var e = prog.stories[ep.key];
+      if (!e) return;
+      if (e.revu) faites++;
+      else if (e.revoir && e.revoir <= t && ep.revision.length) aFaire++;
     });
-    $('#parentTable').innerHTML = rows;
+    var parNiveau = NIVEAUX_PRESENTS.map(function (niv) {
+      var list = HISTOIRES.filter(function (h) { return h.niveau === niv; });
+      return { niv: niv, lues: list.filter(storyRead).length, total: list.length };
+    });
+    var types = Object.keys(TYPES).map(function (k) { var s = prog.stats.types[k] || { vus: 0, ok: 0 }; return { k: k, vus: s.vus, ok: s.ok }; });
+    var faible = types.filter(function (x) { return x.vus >= 3; }).sort(function (a, b) { return a.ok / a.vus - b.ok / b.vus; })[0];
+    if (faible && faible.ok === faible.vus) faible = null;
+    var pieges = Object.keys(PIEGES).map(function (k) { return { k: k, n: prog.stats.pieges[k] || 0 }; }).sort(function (a, b) { return b.n - a.n; });
+    return { days: days, voix: voix, faites: faites, aFaire: aFaire, parNiveau: parNiveau, types: types, faible: faible, pieges: pieges };
   }
+  function renderParent() {
+    var D = parentData(), days = D.days;
+    $('#parentSum').innerHTML =
+      '<li>' + (days.length ? 'Séances : ' + days.length + ' jour' + (days.length > 1 ? 's' : '') + ' (du ' + fmt(days[0]) + ' au ' + fmt(days[days.length - 1]) + ').' : 'Aucune séance pour l\'instant.') + '</li>' +
+      '<li>Niveau actuel : ' + prog.niveau + '.</li>' +
+      '<li>Histoires lues : ' + D.parNiveau.map(function (x) { return 'niveau ' + x.niv + ' : ' + x.lues + '/' + x.total; }).join(', ') + '.</li>' +
+      '<li>Relectures : ' + D.faites + ' faite' + (D.faites > 1 ? 's' : '') + ', ' + D.aFaire + ' à faire.</li>' +
+      '<li>Voix : utilisée ' + D.voix + ' fois ces 14 derniers jours.</li>';
+    $('#parentTypes').innerHTML = '<tr><th>Type de question</th><th>Du 1er coup</th></tr>' + D.types.map(function (x) {
+      return '<tr><td>' + TYPES[x.k].label + '</td><td class="n">' + (x.vus ? x.ok + ' sur ' + x.vus : '–') + '</td></tr>';
+    }).join('');
+    $('#parentWeak').textContent = D.faible ? 'Le plus difficile en ce moment : les questions « ' + TYPES[D.faible.k].label + ' » (' + TYPES[D.faible.k].nom + ').' : '';
+    var totalP = D.pieges.reduce(function (s, x) { return s + x.n; }, 0);
+    $('#parentTraps').innerHTML = totalP ? D.pieges.filter(function (x) { return x.n; }).map(function (x) {
+      return '<li><b>' + x.n + ' fois</b> : ' + PIEGES[x.k] + '.</li>';
+    }).join('') : '<li>Aucune mauvaise réponse choisie pour l\'instant.</li>';
+
+    var html = '';
+    NIVEAUX_PRESENTS.forEach(function (niv) {
+      html += '<h3>Niveau ' + niv + ' <small>· ' + NIVEAUX[niv] + '</small></h3><div class="defile"><table class="table"><tr><th>Histoire</th><th>Lue</th><th>Meilleur</th><th>Dernière fois : du 1er coup</th><th>Relecture</th></tr>';
+      EPISODES.filter(function (ep) { return ep.h.niveau === niv; }).forEach(function (ep) {
+        var e = entry(ep.key), res = e.res || [];
+        var a = res.filter(function (r) { return r.a === 1; }).length;
+        var withProof = res.filter(function (r) { return r.p; }), p = withProof.filter(function (r) { return r.p === 1; }).length;
+        var rel = e.revu ? fmt(e.revu.d) + ' : ' + e.revu.ok + '/' + e.revu.sur : e.revoir ? 'prévue le ' + fmt(e.revoir) : '–';
+        html += '<tr><td>' + esc(ep.h.emoji + ' ' + epNom(ep)) + '</td><td class="n">' + (e.plays ? e.plays + ' fois' : '–') + '</td><td class="n">' + (e.plays ? e.best + ' ★' : '–') + '</td><td>' +
+          (e.plays ? a + '/' + res.length + ' réponses, ' + p + '/' + withProof.length + ' preuves (le ' + fmt(e.last) + ')' : '') + '</td><td>' + rel + '</td></tr>';
+      });
+      html += '</table></div>';
+    });
+    $('#parentLevels').innerHTML = html;
+    $('#copyMsg').textContent = '';
+  }
+  function parentText() {
+    var D = parentData(), days = D.days, L = ['Petites histoires : résumé du ' + fmt(today())];
+    L.push(days.length ? 'Séances : ' + days.length + ' jours (du ' + fmt(days[0]) + ' au ' + fmt(days[days.length - 1]) + ')' : 'Aucune séance');
+    L.push('Niveau actuel : ' + prog.niveau);
+    L.push('Histoires lues : ' + D.parNiveau.map(function (x) { return 'niveau ' + x.niv + ' ' + x.lues + '/' + x.total; }).join(', '));
+    L.push('Relectures : ' + D.faites + ' faites, ' + D.aFaire + ' à faire');
+    L.push('Du premier coup : ' + D.types.filter(function (x) { return x.vus; }).map(function (x) { return TYPES[x.k].nom + ' ' + x.ok + '/' + x.vus; }).join(', '));
+    var p = D.pieges.filter(function (x) { return x.n; });
+    if (p.length) L.push('Erreurs les plus fréquentes : ' + p.slice(0, 3).map(function (x) { return PIEGES[x.k] + ' (' + x.n + ')'; }).join(' ; '));
+    L.push('Voix utilisée ' + D.voix + ' fois en 14 jours');
+    return L.join('\n');
+  }
+  $('#copyBtn').addEventListener('click', function () {
+    var txt = parentText(), msg = $('#copyMsg');
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = txt;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove();
+      msg.textContent = ok ? 'Copié ! Tu peux le coller dans un message.' : txt;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { msg.textContent = 'Copié ! Tu peux le coller dans un message.'; }, fallback);
+    } else fallback();
+  });
   $('#parentBtn').addEventListener('click', function () { renderParent(); show('parent'); });
   $('#resetBtn').addEventListener('click', function () {
     if (!window.confirm('Effacer toutes les étoiles et les séances sur cet appareil ?')) return;
-    prog = { stories: {}, days: [] };
     store.del(KEY_PROG);
+    loadProg();
     renderParent();
   });
+
+  /* ---------- Point d'accès pour les tests automatiques ---------- */
+  window.__histoires = {
+    HISTOIRES: HISTOIRES,
+    episodes: function () { return EPISODES.map(function (ep) { return { cle: ep.key, niveau: ep.h.niveau, pages: null, questions: ep.questions.length, revision: ep.revision.length }; }); },
+    etat: function () {
+      var q = cur && cur.q, good = q && goodOf(q);
+      return {
+        vue: current, cle: cur && cur.ep.key, mode: cur && cur.mode, page: cur && cur.page, pages: cur && cur.pages.length,
+        qi: cur && cur.qi, phase: cur && cur.phase, type: q && q.type, bonne: good && good.t,
+        pieges: q ? q.reponses.filter(function (r) { return !r.juste; }).map(function (r) { return { t: r.t, piege: r.piege, explication: r.explication }; }) : [],
+        preuves: q ? q.ids.map(function (i) { return cur.ep.phrases[i].t; }) : [],
+        prefs: prefs, prog: prog, aujourdhui: today(), plan: (function (p) { return { cle: p.ep.key, mode: p.mode }; })(todayPlan())
+      };
+    },
+    ouvrir: function (cle, mode) { start(byKey[cle], mode || 'lecture'); },
+    decaler: function (jours) { decalage = jours; if (current === 'home') renderHome(); }
+  };
 
   window.addEventListener('pagehide', stopSpeak);
   renderHome();
