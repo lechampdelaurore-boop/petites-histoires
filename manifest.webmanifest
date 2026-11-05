@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Petites histoires",
   "short_name": "Histoires",
-  "description": "De courtes histoires lues à voix haute, avec des questions pour chercher les indices cachés dans le texte.",
+  "description": "Des histoires à lire soi-même, de plus en plus longues, avec des questions pour chercher les indices cachés dans le texte.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
