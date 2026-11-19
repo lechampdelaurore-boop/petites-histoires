@@ -72,7 +72,7 @@ Par ⚙ puis « Carnet du parent » : jours de séance, niveau en cours, histoir
 
 Sons, animations, « Lire à voix haute tout seul » (désactivé au départ), « Voix plus lente ». Les animations respectent aussi le réglage « réduire les animations » du téléphone. La voix est celle de l'appareil : sans voix française installée, les boutons 🔊 n'apparaissent pas.
 
-Les progrès restent dans le navigateur de l'appareil : aucun compte, et rien n'est envoyé sur internet. Les étoiles gagnées avec la première version sont gardées, sauf celles de « Le coffre du jardin » et « Le potager de monsieur Ali », remplacées par 2 documentaires.
+Les progrès restent dans le navigateur de l'appareil : aucun compte, et rien sur les progrès n'est envoyé sur internet. Seul un compteur de visites anonyme (GoatCounter) compte les ouvertures de l'appli : pas de cookie, pas de nom. Les étoiles gagnées avec la première version sont gardées, sauf celles de « Le coffre du jardin » et « Le potager de monsieur Ali », remplacées par 2 documentaires.
 
 ## Ajouter ou modifier une histoire
 
